@@ -1,3 +1,17 @@
+"""
+get_http_image - Абсолютный адрес картинки.
+Base64ImageField - Оработка изображения в виде строки, закодированной в Base64.
+IngredientSerializer - Отображение ингредиентов.
+TagSerializer - Отображение тегов.
+UserSerializer - Отображение пользователей.
+UserRegSerializer - Сохранение пользователя.
+RecipeIngredientSerializer - Промежуточная таблица рецептов и ингредиентов.
+RecipeReadSerializer - Отображение рецептов.
+RecipeIngredientCreateSerializer - Для сохранения ингредиентов рецепта.
+RecipeWriteSerializer - Сохранение рецепта.
+MinRecipeSerializer - Отображение рецепта с минимальными данными.
+"""
+
 import base64
 
 from django.core.files.base import ContentFile
@@ -12,11 +26,17 @@ from users.validators import validate_username
 
 
 def get_http_image(image):
+    """Абсолютный адрес картинки."""
+
     return f'{HTTP_DOMEN}/{image.url.lstrip("/")}'
 
 
 class Base64ImageField(serializers.ImageField):
+    """Оработка изображения в виде строки, закодированной в Base64."""
+
     def to_internal_value(self, data):
+        """Оработка изображения в виде строки, закодированной в Base64."""
+
         if isinstance(data, str) and data.startswith('data:image'):
             format, imgstr = data.split(';base64,')
             ext = format.split('/')[-1]
@@ -25,6 +45,7 @@ class Base64ImageField(serializers.ImageField):
 
 
 class IngredientSerializer(serializers.ModelSerializer):
+    """Отображение ингредиентов."""
 
     class Meta:
         model = Ingredient
@@ -32,6 +53,7 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class TagSerializer(serializers.ModelSerializer):
+    """Отображение тегов."""
 
     class Meta:
         model = Tag
@@ -39,6 +61,8 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    """Отображение пользователей."""
+
     is_subscribed = serializers.SerializerMethodField()
     avatar = serializers.SerializerMethodField()
 
@@ -50,19 +74,27 @@ class UserSerializer(serializers.ModelSerializer):
         )
 
     def validate_username(self, username):
+        """Проверка имени пользователя."""
+
         validate_username(username)
         return username
 
     def get_is_subscribed(self, obj):
+        """Получение подписок пользователя."""
+
         return Subscriptions.objects.filter(author=obj.id).exists()
 
     def get_avatar(self, obj):
+        """Получение аватара пользователя."""
+
         if obj.avatar:
             return get_http_image(obj.avatar)
         return None
 
 
 class UserRegSerializer(UserCreateSerializer):
+    """Сохранение пользователя."""
+
     class Meta(UserCreateSerializer.Meta):
         model = DBUser
         fields = (
@@ -70,11 +102,15 @@ class UserRegSerializer(UserCreateSerializer):
         )
 
     def validate_username(self, username):
+        """Проверка имени пользователя."""
+
         validate_username(username)
         return username
 
 
 class RecipeIngredientSerializer(serializers.ModelSerializer):
+    """Промежуточная таблица рецептов и ингредиентов."""
+
     id = serializers.ReadOnlyField(source='ingredient.id')
     name = serializers.CharField(source='ingredient.name')
     measurement_unit = serializers.CharField(
@@ -88,6 +124,8 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 
 
 class RecipeReadSerializer(serializers.ModelSerializer):
+    """Отображение рецептов."""
+
     tags = TagSerializer(many=True)
     image = serializers.SerializerMethodField()
     ingredients = RecipeIngredientSerializer(
@@ -106,6 +144,8 @@ class RecipeReadSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
     def get_is_favorited(self, obj):
+        """Есть ли в избранном?"""
+
         request = self.context.get('request', None)
         if request is not None:
             if request.user.is_authenticated:
@@ -113,6 +153,8 @@ class RecipeReadSerializer(serializers.ModelSerializer):
         return False
 
     def get_is_in_shopping_cart(self, obj):
+        """Есть ли в списке покупок?"""
+
         request = self.context.get('request', None)
         if request is not None:
             if request.user.is_authenticated:
@@ -122,12 +164,16 @@ class RecipeReadSerializer(serializers.ModelSerializer):
         return False
 
     def get_image(self, obj):
+        """Получение картики рецепта."""
+
         if obj.image:
             return get_http_image(obj.image)
         return None
 
 
 class RecipeIngredientCreateSerializer(serializers.ModelSerializer):
+    """Для сохранения ингредиентов рецепта."""
+
     id = serializers.PrimaryKeyRelatedField(
         queryset=Ingredient.objects.all(),
         source='ingredient'
@@ -142,6 +188,8 @@ class RecipeIngredientCreateSerializer(serializers.ModelSerializer):
 
 
 class RecipeWriteSerializer(serializers.ModelSerializer):
+    """Сохранение рецепта."""
+
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(), many=True
     )
@@ -153,6 +201,8 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         model = Recipe
 
     def validate_tags(self, values):
+        """Проверка на дубли тегов."""
+
         double_values = values
         for value in double_values[:-1]:
             double_values = double_values[1:]
@@ -163,6 +213,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         return values
 
     def validate_ingredients(self, values):
+        """Проверка на дубли ингредиентов."""
         double_values = values
         for value in double_values[:-1]:
             double_values = double_values[1:]
@@ -174,6 +225,8 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         return values
 
     def validate(self, value):
+        """Проверка на заполненость ингредиентов и тегов."""
+
         if not value.get('ingredients'):
             raise serializers.ValidationError(
                 'Добавьте хотя бы 1 ингредиент.'
@@ -185,6 +238,8 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         return value
 
     def create(self, validated_data):
+        """Сохранение рецепта."""
+
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
         recipe = Recipe.objects.create(**validated_data)
@@ -199,6 +254,8 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         return recipe
 
     def update(self, instance, validated_data):
+        """Изменение рецепта."""
+        
         instance.name = validated_data.get('name', instance.name)
         instance.text = validated_data.get('text', instance.text)
         instance.cooking_time = validated_data.get(
@@ -222,10 +279,13 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         return instance
 
     def to_representation(self, instance):
+        """Отображение рецепта с полными данными."""
         return RecipeReadSerializer().to_representation(instance)
 
 
 class MinRecipeSerializer(serializers.ModelSerializer):
+    """Отображение рецепта с минимальными данными."""
+
     image = serializers.SerializerMethodField()
 
     class Meta:
@@ -233,6 +293,7 @@ class MinRecipeSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'image', 'cooking_time')
 
     def get_image(self, obj):
+        """Получение картики рецепта."""
         if obj.image:
             return get_http_image(obj.image)
         return None

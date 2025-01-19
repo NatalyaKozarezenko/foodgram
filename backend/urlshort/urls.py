@@ -1,3 +1,5 @@
+"""URL для короткой ссылки на рецепт."""
+
 from django.urls import path
 
 from api.views import redirect_view

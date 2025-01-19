@@ -1,3 +1,13 @@
+"""
+Модели:
+Ingredient- Ингредиенты.
+Tag - Теги.
+Recipe - Рецепты.
+RecipeIngredient - Корректировка связной таблицы рецептов и ингредиентов.
+
+min_value - Проверка на значение не меньше 1.
+"""
+
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse_lazy
@@ -10,12 +20,16 @@ from users.models import DBUser
 
 
 def min_value(value):
+    """Проверка на значение не меньше 1."""
+
     if value < MIN_VALUE:
         raise ValidationError(f'{MESSAGE}')
     return value
 
 
 class Tag(models.Model):
+    """Теги."""
+
     name = models.CharField('Название', max_length=MAX_LEN_TAG, unique=True)
     slug = models.SlugField('Слаг', max_length=MAX_LEN_TAG, unique=True)
 
@@ -25,10 +39,14 @@ class Tag(models.Model):
         ordering = ('name',)
 
     def __str__(self):
+        """Отображение название тега."""
+
         return self.name
 
 
 class Ingredient(models.Model):
+    """Ингредиенты."""
+    
     name = models.CharField('Название', max_length=MAX_LEN_NAME_INGREDIENT)
     measurement_unit = models.CharField(
         'Единица измерения',
@@ -41,10 +59,14 @@ class Ingredient(models.Model):
         ordering = ('name',)
 
     def __str__(self):
+        """Отображение название ингредиента."""
+
         return self.name[:LOOK_TEXT]
 
 
 class Recipe(models.Model):
+    """Рецепты."""
+
     name = models.CharField('Название', max_length=MAX_LEN_TEXT)
     text = models.TextField('Описание', blank=True, null=True)
     cooking_time = models.PositiveSmallIntegerField(
@@ -86,19 +108,29 @@ class Recipe(models.Model):
         default_related_name = 'recipes'
 
     def __str__(self):
+        """Отображение название рецепта"""
+
         return self.name[:LOOK_TEXT]
 
     def get_tag(self):
+        """Отображение тегов рецепта"""
+
         return Tag.objects.filter(recipes=self)
 
     def get_absolute_url(self):
+        """Получение url рецепта."""
+
         return reverse_lazy('recipes-detail', args=[self.id])
 
     def get_favorited_count(self):
+        """Подсчет количества рецепта в избранном."""
+
         return self.is_favorited.count()
 
 
 class RecipeIngredient(models.Model):
+    """Корректировка связной таблицы рецептов и ингредиентов."""
+
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,

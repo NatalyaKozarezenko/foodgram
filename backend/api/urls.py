@@ -1,3 +1,16 @@
+"""
+не явные URL:
+api/recipes/download_shopping_cart
+api/recipes/<pk>/shopping_cart
+api/recipes/<pk>/favorite
+api/users/reset_password
+api/recipes/<pk>/shopping_cart
+api/recipes/<pk>/get-link
+api/recipes/download_shopping_cart
+api/users/<id>/subscribe
+api/users/subscriptions
+"""
+
 from django.urls import include, path
 from rest_framework import routers
 

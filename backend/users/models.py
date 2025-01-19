@@ -1,3 +1,9 @@
+"""
+Модели:
+DBUser - Пользователи.
+SubscriptionsAdmin - Подписки.
+"""
+
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
@@ -6,6 +12,8 @@ from users.validators import validate_username
 
 
 class DBUser(AbstractUser):
+    """Пользователи."""
+
     email = models.EmailField(
         'email',
         max_length=EMAIL_MAX_LENGTH,
@@ -30,10 +38,14 @@ class DBUser(AbstractUser):
         ordering = ('username',)
 
     def __str__(self):
+        """Отображение имени пользователя."""
+
         return self.username
 
 
 class Subscriptions(models.Model):
+    """Подписки."""
+
     subscriber_user = models.ForeignKey(
         DBUser,
         on_delete=models.CASCADE,
@@ -53,4 +65,6 @@ class Subscriptions(models.Model):
         verbose_name_plural = 'Подписки'
 
     def __str__(self):
+        """Отображение связи подписок."""
+
         return f'{self.subscriber_user} подписан на {self.author}'

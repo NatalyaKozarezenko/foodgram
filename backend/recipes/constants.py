@@ -1,3 +1,5 @@
+"""Константы для приложение recipes."""
+
 from django.conf import settings
 
 MAX_LEN_TAG = 32

@@ -1,3 +1,8 @@
+"""
+Загрузка данных Тегов и Ингридиентов. Файлы должны размещаться в директории
+PATH_FOR_CSV в корне проекта.
+"""
+
 import csv
 import glob
 import os
@@ -17,9 +22,13 @@ MODELS_DICT = {
 
 
 class Command(BaseCommand):
+    """Поиск файлов, моделей и загрузка данных."""
+
     help = 'Импорт информации из CSV-файла'
 
     def load_file(self, path):
+        """Поиск файлов."""
+
         path += '*.csv'
         files = []
         for filename in glob.glob(os.path.join(path)):
@@ -27,11 +36,15 @@ class Command(BaseCommand):
         return files
 
     def get_model(self, filename):
+        """Поиск моделей."""
+
         for file in MODELS_DICT:
             if file in filename:
                 return MODELS_DICT[file]
 
     def handle(self, *args, **kwargs):
+        """Загрузка данных."""
+
         files = self.load_file(PATH_FOR_CSV)
 
         for filename in files:

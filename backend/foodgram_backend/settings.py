@@ -1,3 +1,7 @@
+"""
+Настройка проекта foodgram.
+"""
+
 import os
 from pathlib import Path
 
