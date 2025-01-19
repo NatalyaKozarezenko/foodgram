@@ -1,5 +1,6 @@
 """
-Модели:
+Модели.
+
 Ingredient- Ингредиенты.
 Tag - Теги.
 Recipe - Рецепты.
@@ -12,16 +13,14 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse_lazy
 
-from recipes.constants import (
-    MAX_LEN_MEASUREMENT_UNIT, MAX_LEN_NAME_INGREDIENT, MAX_LEN_TAG,
-    MAX_LEN_TEXT, MESSAGE, MIN_VALUE, LOOK_TEXT
-)
+from recipes.constants import (LOOK_TEXT, MAX_LEN_MEASUREMENT_UNIT,
+                               MAX_LEN_NAME_INGREDIENT, MAX_LEN_TAG,
+                               MAX_LEN_TEXT, MESSAGE, MIN_VALUE)
 from users.models import DBUser
 
 
 def min_value(value):
     """Проверка на значение не меньше 1."""
-
     if value < MIN_VALUE:
         raise ValidationError(f'{MESSAGE}')
     return value
@@ -34,19 +33,19 @@ class Tag(models.Model):
     slug = models.SlugField('Слаг', max_length=MAX_LEN_TAG, unique=True)
 
     class Meta:
+        """Мета класс Тегов."""
         verbose_name = 'тег'
         verbose_name_plural = 'Теги'
         ordering = ('name',)
 
     def __str__(self):
         """Отображение название тега."""
-
         return self.name
 
 
 class Ingredient(models.Model):
     """Ингредиенты."""
-    
+
     name = models.CharField('Название', max_length=MAX_LEN_NAME_INGREDIENT)
     measurement_unit = models.CharField(
         'Единица измерения',
@@ -54,13 +53,14 @@ class Ingredient(models.Model):
     )
 
     class Meta:
+        """Мета класс ингредиентов."""
+
         verbose_name = 'ингредиент'
         verbose_name_plural = 'Ингредиенты'
         ordering = ('name',)
 
     def __str__(self):
         """Отображение название ингредиента."""
-
         return self.name[:LOOK_TEXT]
 
 
@@ -102,6 +102,8 @@ class Recipe(models.Model):
     )
 
     class Meta:
+        """Мета класс рецептов."""
+
         ordering = ('-pub_date',)
         verbose_name = 'рецепт'
         verbose_name_plural = 'Рецепты'
@@ -109,22 +111,18 @@ class Recipe(models.Model):
 
     def __str__(self):
         """Отображение название рецепта"""
-
         return self.name[:LOOK_TEXT]
 
     def get_tag(self):
         """Отображение тегов рецепта"""
-
         return Tag.objects.filter(recipes=self)
 
     def get_absolute_url(self):
         """Получение url рецепта."""
-
         return reverse_lazy('recipes-detail', args=[self.id])
 
     def get_favorited_count(self):
         """Подсчет количества рецепта в избранном."""
-
         return self.is_favorited.count()
 
 
@@ -147,4 +145,5 @@ class RecipeIngredient(models.Model):
     )
 
     def __str__(self):
+        """Отображение рецептов и ингредиентов и их веса."""
         return f'{self.recipe} {self.amount} {self.ingredient}'

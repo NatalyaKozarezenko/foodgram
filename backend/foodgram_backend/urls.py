@@ -1,5 +1,6 @@
 """
-не явные URL:
+Ниже приведены неявные URL.
+
 api/recipes/download_shopping_cart
 api/recipes/<pk>/shopping_cart
 api/recipes/<pk>/favorite
@@ -17,7 +18,6 @@ from django.contrib import admin
 from django.urls import include, path
 
 from recipes.views import RecipeDetailView
-
 
 urlpatterns = [
     path('admin/', admin.site.urls),

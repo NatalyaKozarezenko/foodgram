@@ -1,6 +1,8 @@
 """
-Загрузка данных Тегов и Ингридиентов. Файлы должны размещаться в директории
-PATH_FOR_CSV в корне проекта.
+Загрузка данных.
+
+Файлы Тегов и Ингридиентов должны размещаться в директории PATH_FOR_CSV
+в корне проекта.
 """
 
 import csv
@@ -13,7 +15,6 @@ from django.http.response import Http404
 
 from foodgram_backend.settings import PATH_FOR_CSV
 from recipes.models import Ingredient, Tag
-
 
 MODELS_DICT = {
     'ingredients': Ingredient,
@@ -28,7 +29,6 @@ class Command(BaseCommand):
 
     def load_file(self, path):
         """Поиск файлов."""
-
         path += '*.csv'
         files = []
         for filename in glob.glob(os.path.join(path)):
@@ -37,14 +37,12 @@ class Command(BaseCommand):
 
     def get_model(self, filename):
         """Поиск моделей."""
-
         for file in MODELS_DICT:
             if file in filename:
                 return MODELS_DICT[file]
 
     def handle(self, *args, **kwargs):
         """Загрузка данных."""
-
         files = self.load_file(PATH_FOR_CSV)
 
         for filename in files:

@@ -1,4 +1,6 @@
 """
+Перечень функций и классов.
+
 redirect_view - Получение рецепта по короткой ссылке.
 RecipeFilter - Фильтр по данным рецепта.
 TagViewSet - Теги
@@ -7,7 +9,7 @@ IngredientViewSet - Ингредиенты.
 RecipeViewSet - Рецепты.
 CostomsViewSet - Пользователи.
 AvatarViewSet - Аватор пользователя.
-""" 
+"""
 
 import django_filters
 import short_url
@@ -24,23 +26,18 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from api.permissions import IsAuthorOrRead
-from api.serializers import (
-    AvatarSerializer,
-    IngredientSerializer,
-    MinRecipeSerializer,
-    RecipeReadSerializer, RecipeWriteSerializer,
-    SubscriptionsSerializer, ShorturlSerializer,
-    TagSerializer,
-    UserSerializer, UserRegSerializer,
-)
-from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
+from api.serializers import (AvatarSerializer, IngredientSerializer,
+                             MinRecipeSerializer, RecipeReadSerializer,
+                             RecipeWriteSerializer, ShorturlSerializer,
+                             SubscriptionsSerializer, TagSerializer,
+                             UserRegSerializer, UserSerializer)
 from recipes.constants import HTTP_DOMEN, NAME_FILE
+from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
 from users.models import DBUser, Subscriptions
 
 
 def redirect_view(request, tiny):
     """Получение рецепта по короткой ссылке."""
-
     model = apps.get_model('recipes', 'Recipe')
     try:
         id = short_url.decode_url(tiny)
@@ -67,12 +64,13 @@ class RecipeFilter(django_filters.FilterSet):
     )
 
     class Meta:
+        """Мета класс рецепта."""
+
         model = Recipe
         fields = ('tags', 'is_favorited', 'author', 'is_in_shopping_cart')
 
     def is_favorited_filter(self, queryset, name, value):
-        """Есть ли рецепт в избранном?"""
-
+        """Проверка есть ли рецепт в избранном."""
         user = self.request.user
         if not user.is_authenticated:
             return queryset.none() if value else queryset
@@ -84,7 +82,7 @@ class RecipeFilter(django_filters.FilterSet):
             return queryset
 
     def is_in_shopping_cart_filter(self, queryset, name, value):
-        """Есть ли рецепт в списке покупок?"""
+        """Проверка есть рецепт в списке покупок."""
         user = self.request.user
         if not user.is_authenticated:
             return queryset.none() if value else queryset
@@ -97,7 +95,7 @@ class RecipeFilter(django_filters.FilterSet):
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
-    """Теги"""
+    """Теги."""
 
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
@@ -112,6 +110,8 @@ class IngredientFilter(django_filters.FilterSet):
     )
 
     class Meta:
+        """Мета класс для фильтрации ингредиентов."""
+
         model = Ingredient
         fields = ['name']
 
@@ -145,21 +145,18 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         """Выбор сериализатора."""
-
         if self.action == 'list':
             return RecipeReadSerializer
         return RecipeWriteSerializer
 
     def perform_create(self, serializer):
         """Сохранение автора."""
-
         serializer.save(author=self.request.user)
 
     @action(detail=True, methods=['post', 'delete'], url_path='favorite',
             permission_classes=(permissions.IsAuthenticated,))
     def to_favorite(self, request, *args, **kwargs):
         """Добавление/удаление в (из) Избранного."""
-
         recipe = get_object_or_404(Recipe, pk=kwargs.get('pk'))
         user = request.user
         exist = recipe.is_favorited.filter(username=user).exists()
@@ -186,7 +183,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post', 'delete'], url_path='shopping_cart')
     def shopping_cart(self, request, *args, **kwargs):
         """Добавление/удаление в (из) списка покупок."""
-
         recipe = get_object_or_404(Recipe, pk=kwargs.get('pk'))
         user = request.user
         exist = recipe.is_in_shopping_cart.filter(username=user).exists()
@@ -214,7 +210,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
             permission_classes=(permissions.IsAuthenticated,))
     def generete_txt_file(self, request, *args, **kwargs):
         """Формирование файла txt из списка покупок."""
-
         text = 'Список покупок:\n'
         user = DBUser.objects.get(username=request.user)
         shopping_cart = {}
@@ -243,7 +238,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
             permission_classes=(permissions.AllowAny,))
     def get_link(self, request, *args, **kwargs):
         """Короткая ссылка на рецепт."""
-
         tinyid = short_url.encode_url(int(kwargs.get('pk')))
         test = reverse_lazy('short_url_view', kwargs={'tiny': tinyid})
         data = {'short-link': f'{HTTP_DOMEN}' + test}
@@ -259,7 +253,6 @@ class CostomsViewSet(DjoserUserViewSet):
 
     def get_serializer_class(self):
         """Выбор сериализатора."""
-
         if self.action == 'create':
             return UserRegSerializer
         if self.action == 'set_password':
@@ -270,7 +263,6 @@ class CostomsViewSet(DjoserUserViewSet):
             permission_classes=(permissions.IsAuthenticated,))
     def me(self, request, *args, **kwargs):
         """Просмотр своих данных."""
-
         author = get_object_or_404(DBUser, username=request.user)
         serializer = UserSerializer(author, context={'request': request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -279,7 +271,6 @@ class CostomsViewSet(DjoserUserViewSet):
             permission_classes=(permissions.IsAuthenticated,))
     def subscriptions(self, request, *args, **kwargs):
         """Просмотр своих подписок."""
-
         subscriptions = Subscriptions.objects.filter(
             subscriber_user=request.user
         )
@@ -297,7 +288,6 @@ class CostomsViewSet(DjoserUserViewSet):
             permission_classes=(permissions.IsAuthenticated,))
     def add_subscribe(self, request, *args, **kwargs):
         """Редактирование подписок."""
-
         subscriber_user = request.user
         author = self.get_object()
         subscription = Subscriptions.objects.filter(
@@ -342,8 +332,7 @@ class AvatarViewSet(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def put(self, request):
-        """Добавление аватора пользователя.""" 
-
+        """Добавление аватора пользователя."""
         serializer = AvatarSerializer(request.user, data=request.data)
         if request.data.get('avatar') is None:
             raise serializers.ValidationError(
@@ -357,8 +346,7 @@ class AvatarViewSet(APIView):
         )
 
     def delete(self, request):
-        """Удаление аватора пользователя.""" 
-
+        """Удаление аватора пользователя."""
         user = request.user
         if user.avatar:
             user.avatar.delete()

@@ -1,4 +1,6 @@
 """
+Перечень функций и классов.
+
 get_http_image - Абсолютный адрес картинки.
 Base64ImageField - Оработка изображения в виде строки, закодированной в Base64.
 IngredientSerializer - Отображение ингредиентов.
@@ -27,7 +29,6 @@ from users.validators import validate_username
 
 def get_http_image(image):
     """Абсолютный адрес картинки."""
-
     return f'{HTTP_DOMEN}/{image.url.lstrip("/")}'
 
 
@@ -36,7 +37,6 @@ class Base64ImageField(serializers.ImageField):
 
     def to_internal_value(self, data):
         """Оработка изображения в виде строки, закодированной в Base64."""
-
         if isinstance(data, str) and data.startswith('data:image'):
             format, imgstr = data.split(';base64,')
             ext = format.split('/')[-1]
@@ -48,6 +48,8 @@ class IngredientSerializer(serializers.ModelSerializer):
     """Отображение ингредиентов."""
 
     class Meta:
+        """мета класс ингредиентов."""
+
         model = Ingredient
         fields = '__all__'
 
@@ -56,6 +58,8 @@ class TagSerializer(serializers.ModelSerializer):
     """Отображение тегов."""
 
     class Meta:
+        """мета класс тегов."""
+
         model = Tag
         fields = '__all__'
 
@@ -67,6 +71,8 @@ class UserSerializer(serializers.ModelSerializer):
     avatar = serializers.SerializerMethodField()
 
     class Meta:
+        """мета класс пользователей."""
+
         model = DBUser
         fields = (
             'email', 'id', 'username', 'first_name',
@@ -75,18 +81,15 @@ class UserSerializer(serializers.ModelSerializer):
 
     def validate_username(self, username):
         """Проверка имени пользователя."""
-
         validate_username(username)
         return username
 
     def get_is_subscribed(self, obj):
         """Получение подписок пользователя."""
-
         return Subscriptions.objects.filter(author=obj.id).exists()
 
     def get_avatar(self, obj):
         """Получение аватара пользователя."""
-
         if obj.avatar:
             return get_http_image(obj.avatar)
         return None
@@ -96,6 +99,7 @@ class UserRegSerializer(UserCreateSerializer):
     """Сохранение пользователя."""
 
     class Meta(UserCreateSerializer.Meta):
+        """Мета класс отображение пользователя."""
         model = DBUser
         fields = (
             'id', 'email', 'username', 'first_name', 'last_name', 'password'
@@ -103,7 +107,6 @@ class UserRegSerializer(UserCreateSerializer):
 
     def validate_username(self, username):
         """Проверка имени пользователя."""
-
         validate_username(username)
         return username
 
@@ -119,6 +122,7 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
     amount = serializers.IntegerField()
 
     class Meta:
+        """Мета класс для промежуточная таблица рецептов и ингредиентов."""
         fields = ('id', 'name', 'measurement_unit', 'amount')
         model = RecipeIngredient
 
@@ -136,6 +140,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     author = UserSerializer()
 
     class Meta:
+        """Мета класс отображение рецептов."""
         fields = (
             'id', 'tags', 'author', 'ingredients', 'is_favorited',
             'is_in_shopping_cart', 'name', 'image', 'text', 'cooking_time'
@@ -144,8 +149,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
     def get_is_favorited(self, obj):
-        """Есть ли в избранном?"""
-
+        """Проверка наличия в избранном."""
         request = self.context.get('request', None)
         if request is not None:
             if request.user.is_authenticated:
@@ -153,8 +157,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
         return False
 
     def get_is_in_shopping_cart(self, obj):
-        """Есть ли в списке покупок?"""
-
+        """Проверка наличия в списке покупок."""
         request = self.context.get('request', None)
         if request is not None:
             if request.user.is_authenticated:
@@ -165,7 +168,6 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 
     def get_image(self, obj):
         """Получение картики рецепта."""
-
         if obj.image:
             return get_http_image(obj.image)
         return None
@@ -183,6 +185,8 @@ class RecipeIngredientCreateSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
+        """Мета класс связной таблицы рецептов и ингредиентов."""
+
         model = RecipeIngredient
         fields = ('id', 'amount')
 
@@ -197,12 +201,13 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
     image = Base64ImageField()
 
     class Meta:
+        """Мета класс для записи рецептов."""
+
         fields = '__all__'
         model = Recipe
 
     def validate_tags(self, values):
         """Проверка на дубли тегов."""
-
         double_values = values
         for value in double_values[:-1]:
             double_values = double_values[1:]
@@ -226,7 +231,6 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
 
     def validate(self, value):
         """Проверка на заполненость ингредиентов и тегов."""
-
         if not value.get('ingredients'):
             raise serializers.ValidationError(
                 'Добавьте хотя бы 1 ингредиент.'
@@ -239,7 +243,6 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         """Сохранение рецепта."""
-
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
         recipe = Recipe.objects.create(**validated_data)
@@ -255,7 +258,6 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         """Изменение рецепта."""
-        
         instance.name = validated_data.get('name', instance.name)
         instance.text = validated_data.get('text', instance.text)
         instance.cooking_time = validated_data.get(
@@ -289,6 +291,7 @@ class MinRecipeSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField()
 
     class Meta:
+        """Мета класс рецепта с минимальными данными."""
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
 
@@ -300,11 +303,15 @@ class MinRecipeSerializer(serializers.ModelSerializer):
 
 
 class SubscriptionsSerializer(serializers.ModelSerializer):
+    """Подписки."""
+
     is_subscribed = serializers.SerializerMethodField()
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.IntegerField(source='recipes.count')
 
     class Meta:
+        """Мета класс подписок."""
+
         model = DBUser
         fields = (
             'email', 'id', 'username', 'first_name', 'last_name',
@@ -312,9 +319,11 @@ class SubscriptionsSerializer(serializers.ModelSerializer):
         )
 
     def get_is_subscribed(self, obj):
+        """Выводим true."""
         return True
 
     def get_recipes(self, obj):
+        """Выводим репецпы на кого подписались."""
         request = self.context.get('request')
         recipes_limit = request.query_params.get('recipes_limit')
         recipes = obj.recipes.all()
@@ -327,36 +336,51 @@ class SubscriptionsSerializer(serializers.ModelSerializer):
 
 
 class AvatarSerializer(serializers.ModelSerializer):
+    """Аватар."""
+
     avatar = Base64ImageField(use_url=True, required=False)
 
     class Meta:
+        """Мета данных аватара."""
+
         model = DBUser
         fields = ('avatar',)
 
     def to_representation(self, instance):
+        """Абсолютный путь к аватару."""
         return AvatarHttpSerializer().to_representation(instance)
 
 
 class AvatarHttpSerializer(serializers.ModelSerializer):
+    """Абсолютный путь к аватару."""
+
     avatar = serializers.SerializerMethodField()
 
     class Meta:
+        """Мета данные абсолютный путь к аватару."""
+
         model = DBUser
         fields = ('avatar',)
 
     def get_avatar(self, obj):
+        """Абсолютный путь к аватару."""
         if obj.avatar:
             return get_http_image(obj.avatar)
         return None
 
 
 class ShorturlSerializer(serializers.Serializer):
+    """Короткая ссылка для рецепта."""
+
     short_link = serializers.CharField(source='short-link')
 
     class Meta:
+        """Мета данные для короткой ссылки."""
+
         fields = ('short_link',)
 
     def to_representation(self, instance):
+        """Отображение короткой ссылки."""
         representation = super().to_representation(instance)
         if 'short_link' in representation:
             representation['short-link'] = representation.pop('short_link')

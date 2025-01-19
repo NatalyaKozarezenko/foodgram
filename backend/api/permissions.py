@@ -1,6 +1,4 @@
-"""
-IsAuthorOrRead - Если не автор, то только чтение. 
-"""
+"""IsAuthorOrRead - Если не автор, то только чтение."""
 
 from rest_framework import permissions
 

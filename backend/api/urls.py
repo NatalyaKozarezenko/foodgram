@@ -1,5 +1,6 @@
 """
-не явные URL:
+Перечень неявных URL.
+
 api/recipes/download_shopping_cart
 api/recipes/<pk>/shopping_cart
 api/recipes/<pk>/favorite
@@ -14,14 +15,8 @@ api/users/subscriptions
 from django.urls import include, path
 from rest_framework import routers
 
-from api.views import (
-    AvatarViewSet,
-    CostomsViewSet,
-    IngredientViewSet,
-    RecipeViewSet,
-    TagViewSet
-)
-
+from api.views import (AvatarViewSet, CostomsViewSet, IngredientViewSet,
+                       RecipeViewSet, TagViewSet)
 
 router_v1 = routers.DefaultRouter()
 router_v1.register('tags', TagViewSet, basename='tags')

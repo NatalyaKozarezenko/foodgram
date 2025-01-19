@@ -1,6 +1,4 @@
-"""
-RecipeDetailView - Ссылка на рецепт.
-"""
+"""RecipeDetailView - Ссылка на рецепт."""
 
 from rest_framework.views import APIView
 

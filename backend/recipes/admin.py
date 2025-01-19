@@ -1,5 +1,6 @@
 """
-Настройка админки:
+Настройка админки.
+
 IngredientAdmin - Ингредиенты
 TagAdmin - Теги
 RecipeAdmin - Рецепты
@@ -8,7 +9,6 @@ RecipeAdmin - Рецепты
 from django.contrib import admin
 
 from recipes.models import Ingredient, Recipe, Tag
-
 
 admin.site.empty_value_display = 'Не задано'
 
@@ -44,13 +44,11 @@ class RecipeAdmin(admin.ModelAdmin):
     @admin.display(description='Тег(и)')
     def get_tag(self, recipe):
         """Отображение тегов рецепта."""
-
         return ', '.join(tag.name for tag in recipe.tags.all())
 
     @admin.display(description='Избранное')
     def get_favorited(self, recipe):
         """У кого в избранном."""
-
         return ', '.join(
             favorited.username for favorited in recipe.is_favorited.all()
         )
@@ -58,7 +56,6 @@ class RecipeAdmin(admin.ModelAdmin):
     @admin.display(description='В списке покупок')
     def get_shopping_cart(self, recipe):
         """У кого в списке покупок."""
-
         return ', '.join(
             shopping.username for shopping in recipe.is_in_shopping_cart.all()
         )
@@ -66,7 +63,6 @@ class RecipeAdmin(admin.ModelAdmin):
     @admin.display(description='Общее кол-во в избранном')
     def get_favorited_count(self, recipe):
         """Общее кол-во пользователей, у кого рецепт в избранном."""
-
         return recipe.get_favorited_count()
 
 

@@ -1,6 +1,4 @@
-"""
-validate_username - Проверка имени пользователя.
-"""
+"""validate_username - Проверка имени пользователя."""
 
 import re
 
@@ -11,7 +9,6 @@ from users.constants import EXAMPLE
 
 def validate_username(username):
     """Проверка имени пользователя."""
-
     invalid_chars = re.sub(EXAMPLE, '', username)
     if invalid_chars:
         raise ValidationError(
