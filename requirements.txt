@@ -15,7 +15,6 @@ coreschema==0.0.4
 cryptography==44.0.0
 defusedxml==0.8.0rc2
 django-templated-mail==1.1.1
-djangorestframework-simplejwt==5.3.1
 djoser==2.3.1
 idna==3.10
 itypes==1.2.0
