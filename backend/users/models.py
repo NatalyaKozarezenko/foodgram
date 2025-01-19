@@ -1,0 +1,56 @@
+from django.contrib.auth.models import AbstractUser
+from django.db import models
+
+from users.constants import MAX_LENGTH_FOR_FIELDS, EMAIL_MAX_LENGTH
+from users.validators import validate_username
+
+
+class DBUser(AbstractUser):
+    email = models.EmailField(
+        'email',
+        max_length=EMAIL_MAX_LENGTH,
+        unique=True
+    )
+    username = models.CharField(
+        'Никнейм',
+        max_length=MAX_LENGTH_FOR_FIELDS,
+        unique=True,
+        validators=[validate_username]
+    )
+    first_name = models.CharField('Имя', max_length=MAX_LENGTH_FOR_FIELDS)
+    last_name = models.CharField('Фамилия', max_length=MAX_LENGTH_FOR_FIELDS)
+    avatar = models.ImageField(upload_to='users/images/', blank=True)
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
+
+    class Meta:
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
+        ordering = ('username',)
+
+    def __str__(self):
+        return self.username
+
+
+class Subscriptions(models.Model):
+    subscriber_user = models.ForeignKey(
+        DBUser,
+        on_delete=models.CASCADE,
+        verbose_name='Подписчик',
+        related_name='subscriber_user'
+    )
+    author = models.ForeignKey(
+        DBUser,
+        on_delete=models.CASCADE,
+        verbose_name='Автор',
+        related_name='author'
+    )
+
+    class Meta:
+        unique_together = ('subscriber_user', 'author')
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
+
+    def __str__(self):
+        return f'{self.subscriber_user} подписан на {self.author}'
