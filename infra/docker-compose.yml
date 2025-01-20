@@ -34,13 +34,23 @@ services:
     volumes:
       - static:/static
   nginx:
-    build: ./
+    build: ../nginx/
     ports:
-      - 80:80
+      - 6000:80
     volumes:
-      # - ./nginx.conf:/etc/nginx/conf.d/default.conf
-      # - ../frontend/build:/usr/share/nginx/html/
-      # - ../docs/:/usr/share/nginx/html/api/docs/
-      # чтоб заработала статика у админки (ещё в конфиге ingx изменения. д б всё вместе)
-      - static:/static
-      - media:/media/ # а то пропали картинки пользователей
+      - ../nginx.conf:/etc/nginx/sites-enabled/default
+      - static:/static/
+      - media:/media/
+    depends_on:
+      - backend
+      - frontend
+
+    # build: ./
+    # ports:
+    #   - 80:80
+    # volumes:
+    # # не работает
+    #   - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    #   # - ../docs/:/usr/share/nginx/html/api/docs/ # redoc под ?
+    #   - static:/static
+    #   - media:/media/ 
