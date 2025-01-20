@@ -12,18 +12,17 @@ AvatarViewSet - Аватор пользователя.
 """
 
 import short_url
-
 from api.permissions import IsAuthorOrRead
 from api.serializers import (AvatarSerializer, IngredientSerializer,
                              MinRecipeSerializer, RecipeReadSerializer,
                              RecipeWriteSerializer, ShorturlSerializer,
                              SubscriptionsSerializer, TagSerializer,
                              UserRegSerializer, UserSerializer)
+import django_filters
 from django.apps import apps
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
-import django_filters
 from djoser.serializers import SetPasswordSerializer
 from djoser.views import UserViewSet as DjoserUserViewSet
 from recipes.constants import HTTP_DOMEN, NAME_FILE
