@@ -11,6 +11,7 @@ CostomsViewSet - Пользователи.
 AvatarViewSet - Аватор пользователя.
 """
 
+import django_filters
 import short_url
 from api.permissions import IsAuthorOrRead
 from api.serializers import (AvatarSerializer, IngredientSerializer,
@@ -18,7 +19,6 @@ from api.serializers import (AvatarSerializer, IngredientSerializer,
                              RecipeWriteSerializer, ShorturlSerializer,
                              SubscriptionsSerializer, TagSerializer,
                              UserRegSerializer, UserSerializer)
-import django_filters
 from django.apps import apps
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
