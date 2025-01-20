@@ -12,7 +12,6 @@ min_value - Проверка на значение не меньше 1.
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse_lazy
-
 from recipes.constants import (LOOK_TEXT, MAX_LEN_MEASUREMENT_UNIT,
                                MAX_LEN_NAME_INGREDIENT, MAX_LEN_TAG,
                                MAX_LEN_TEXT, MESSAGE, MIN_VALUE)
@@ -34,7 +33,7 @@ class Tag(models.Model):
 
     class Meta:
         """Мета класс Тегов."""
-        
+
         verbose_name = 'тег'
         verbose_name_plural = 'Теги'
         ordering = ('name',)

@@ -1,9 +1,8 @@
 """RecipeDetailView - Ссылка на рецепт."""
 
-from rest_framework.views import APIView
-
 from api.serializers import RecipeReadSerializer
 from recipes.models import Recipe
+from rest_framework.views import APIView
 
 
 class RecipeDetailView(APIView):

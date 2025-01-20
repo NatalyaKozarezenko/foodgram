@@ -12,10 +12,10 @@ api/users/<id>/subscribe
 api/users/subscriptions
 """
 
-from django.urls import include, path
-from rest_framework import routers
 from api.views import (AvatarViewSet, CostomsViewSet, IngredientViewSet,
                        RecipeViewSet, TagViewSet)
+from django.urls import include, path
+from rest_framework import routers
 
 router_v1 = routers.DefaultRouter()
 router_v1.register('tags', TagViewSet, basename='tags')
