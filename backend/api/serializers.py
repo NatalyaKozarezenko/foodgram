@@ -20,7 +20,6 @@ from django.core.files.base import ContentFile
 from django.core.validators import MinValueValidator
 from djoser.serializers import UserCreateSerializer
 from rest_framework import serializers
-
 from recipes.constants import HTTP_DOMEN, MESSAGE, MIN_VALUE
 from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
 from users.models import DBUser, Subscriptions
@@ -100,7 +99,7 @@ class UserRegSerializer(UserCreateSerializer):
 
     class Meta(UserCreateSerializer.Meta):
         """Мета класс отображение пользователя."""
-        
+
         model = DBUser
         fields = (
             'id', 'email', 'username', 'first_name', 'last_name', 'password'

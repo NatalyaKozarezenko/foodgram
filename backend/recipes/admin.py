@@ -7,7 +7,6 @@ RecipeAdmin - Рецепты
 """
 
 from django.contrib import admin
-
 from recipes.models import Ingredient, Recipe, Tag
 
 admin.site.empty_value_display = 'Не задано'
