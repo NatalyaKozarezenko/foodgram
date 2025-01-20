@@ -64,13 +64,13 @@ class RecipeFilter(django_filters.FilterSet):
     )
 
     class Meta:
-        """Мета класс рецепта."""
+        """Мета класс фильтра рецепта."""
 
         model = Recipe
         fields = ('tags', 'is_favorited', 'author', 'is_in_shopping_cart')
 
     def is_favorited_filter(self, queryset, name, value):
-        """Проверка есть ли рецепт в избранном."""
+        """Проверка рецепта в избранном."""
         user = self.request.user
         if not user.is_authenticated:
             return queryset.none() if value else queryset
@@ -82,7 +82,7 @@ class RecipeFilter(django_filters.FilterSet):
             return queryset
 
     def is_in_shopping_cart_filter(self, queryset, name, value):
-        """Проверка есть рецепт в списке покупок."""
+        """Проверка рецепта в списке покупок."""
         user = self.request.user
         if not user.is_authenticated:
             return queryset.none() if value else queryset
@@ -110,7 +110,7 @@ class IngredientFilter(django_filters.FilterSet):
     )
 
     class Meta:
-        """Мета класс для фильтрации ингредиентов."""
+        """Мета класс фильтра ингредиентов."""
 
         model = Ingredient
         fields = ['name']
