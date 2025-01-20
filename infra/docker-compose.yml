@@ -1,15 +1,10 @@
 version: '3.3'
-# services: было в основной версии
 
-
-# Далее всё мое  Перечень volume
 volumes:
   pg_data:
-  # для статических файлов
   static:
   media:
 
-# Перечень контейнеров
 services:
   # Имя и описание первого контейнера; имя выбирает разработчик. 
   # Это контейнер БД
@@ -32,25 +27,20 @@ services:
     volumes:
       - static:/backend_static
       - media:/app/media/
-      # моё закончилось
-
   frontend:
     container_name: foodgram-front
     build: ../frontend
     command: cp -r /app/build/. /static/
     volumes:
       - static:/static
-    # volumes:
-    #   - ../frontend/:/app/result_build/
   nginx:
-    container_name: foodgram-proxy
-    image: nginx:1.25.4-alpine
+    build: ./
     ports:
-      - "80:80"
+      - 80:80
     volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      # - ./nginx.conf:/etc/nginx/conf.d/default.conf
       # - ../frontend/build:/usr/share/nginx/html/
-      - ../docs/:/usr/share/nginx/html/api/docs/
+      # - ../docs/:/usr/share/nginx/html/api/docs/
       # чтоб заработала статика у админки (ещё в конфиге ingx изменения. д б всё вместе)
       - static:/static
       - media:/media/ # а то пропали картинки пользователей

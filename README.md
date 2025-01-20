@@ -88,15 +88,15 @@ social-auth-core
 1.1. В корне проекта создайте файл .env и заполните следующими данными:
 
 ```
-POSTGRES_DB=foodgram                               - имя базы данных
-POSTGRES_USER=foodgram_user                        - имя пользователя в БД
-POSTGRES_PASSWORD=foodgram_password                - пароль для пользователя к БД
-DB_HOST=db                                          - имя Хоста
-DB_PORT=5432                                        - порт соединения к БД
-SECRET_KEY=SECRET_KEY                               - SECRET_KEY
-ALLOWED_HOSTS='127.0.0.1 localhost kittygram.ru'    - перечень разрешённых хостов (пример)
-SQLITE = False                                      - False для работы с postgresql и True для sqlite.
-DEBUG = False                                        - статус режима отладки  
+POSTGRES_DB=foodgram                                   - имя базы данных
+POSTGRES_USER=foodgram_user                            - имя пользователя в БД
+POSTGRES_PASSWORD=foodgram_password                    - пароль для пользователя к БД
+DB_HOST=db                                             - имя Хоста
+DB_PORT=5432                                           - порт соединения к БД
+SECRET_KEY=SECRET_KEY                                  - SECRET_KEY
+ALLOWED_HOSTS=allfood.zapto.org 127.0.0.1 localhost    - перечень разрешённых хостов (пример)
+SQLITE = False                                         - False для работы с postgresql и True для sqlite.
+DEBUG = False                                          - статус режима отладки  
 ```
 
 
@@ -147,20 +147,6 @@ sudo docker compose -f docker-compose.production.yml exec backend python manage.
 
 Запустите проект.
 
-4.8. Настройте секреты в GitHub Actions для работы workflow
-
-Файл workflow: kittygram/.github/workflows/main.yml
-
-```
-DOCKER_USERNAME - логин Docker Hub
-DOCKER_PASSWORD - пароль Docker Hub
-HOST            - IP-адрес вашего сервера
-SSH_KEY         - содержимое текстового файла с закрытым SSH-ключом
-SSH_PASSPHRASE  - пароль для ssh-ключа
-TELEGRAM_TO     - ID вашего телеграм-аккаунта. Узнать ID можно у телеграм-бота @userinfobot. 
-TELEGRAM_TOKEN  - токен вашего бота. Получить токен можно у телеграм-бота @BotFather.
-USER            - имя пользователя
-```
 
 ## Автор
 [Наталья Козарезенко](https://github.com/NatalyaKozarezenko/) 
