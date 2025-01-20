@@ -11,6 +11,8 @@ CostomsViewSet - Пользователи.
 AvatarViewSet - Аватор пользователя.
 """
 
+import short_url
+
 from api.permissions import IsAuthorOrRead
 from api.serializers import (AvatarSerializer, IngredientSerializer,
                              MinRecipeSerializer, RecipeReadSerializer,
@@ -18,10 +20,10 @@ from api.serializers import (AvatarSerializer, IngredientSerializer,
                              SubscriptionsSerializer, TagSerializer,
                              UserRegSerializer, UserSerializer)
 from django.apps import apps
-import django_filters
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
+import django_filters
 from djoser.serializers import SetPasswordSerializer
 from djoser.views import UserViewSet as DjoserUserViewSet
 from recipes.constants import HTTP_DOMEN, NAME_FILE
@@ -31,7 +33,6 @@ from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
-import short_url
 from users.models import DBUser, Subscriptions
 
 
