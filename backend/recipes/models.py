@@ -34,6 +34,7 @@ class Tag(models.Model):
 
     class Meta:
         """Мета класс Тегов."""
+        
         verbose_name = 'тег'
         verbose_name_plural = 'Теги'
         ordering = ('name',)
@@ -110,11 +111,11 @@ class Recipe(models.Model):
         default_related_name = 'recipes'
 
     def __str__(self):
-        """Отображение название рецепта"""
+        """Отображение название рецепта."""
         return self.name[:LOOK_TEXT]
 
     def get_tag(self):
-        """Отображение тегов рецепта"""
+        """Отображение тегов рецепта."""
         return Tag.objects.filter(recipes=self)
 
     def get_absolute_url(self):

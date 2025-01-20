@@ -7,7 +7,6 @@ SubscriptionsAdmin - Подписки.
 
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-
 from users.constants import EMAIL_MAX_LENGTH, MAX_LENGTH_FOR_FIELDS
 from users.validators import validate_username
 
@@ -63,6 +62,7 @@ class Subscriptions(models.Model):
 
     class Meta:
         """Мета данные подписок."""
+
         unique_together = ('subscriber_user', 'author')
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'

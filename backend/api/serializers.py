@@ -100,6 +100,7 @@ class UserRegSerializer(UserCreateSerializer):
 
     class Meta(UserCreateSerializer.Meta):
         """Мета класс отображение пользователя."""
+        
         model = DBUser
         fields = (
             'id', 'email', 'username', 'first_name', 'last_name', 'password'
@@ -123,6 +124,7 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
 
     class Meta:
         """Мета класс для промежуточная таблица рецептов и ингредиентов."""
+
         fields = ('id', 'name', 'measurement_unit', 'amount')
         model = RecipeIngredient
 
@@ -141,6 +143,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 
     class Meta:
         """Мета класс отображение рецептов."""
+
         fields = (
             'id', 'tags', 'author', 'ingredients', 'is_favorited',
             'is_in_shopping_cart', 'name', 'image', 'text', 'cooking_time'
@@ -292,6 +295,7 @@ class MinRecipeSerializer(serializers.ModelSerializer):
 
     class Meta:
         """Мета класс рецепта с минимальными данными."""
+
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
 
