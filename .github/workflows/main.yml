@@ -9,7 +9,6 @@ jobs:
     strategy:
       matrix:
         python-version: ['3.9', '3.10']
-    # Установим и запустим сервер PostgreSQL
     services:
       postgres:
         image: postgres:13.10
