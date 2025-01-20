@@ -357,7 +357,7 @@ class AvatarHttpSerializer(serializers.ModelSerializer):
     avatar = serializers.SerializerMethodField()
 
     class Meta:
-        """Мета данные абсолютный путь к аватару."""
+        """Мета данные для аватара."""
 
         model = DBUser
         fields = ('avatar',)
