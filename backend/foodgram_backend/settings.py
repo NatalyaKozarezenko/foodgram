@@ -135,4 +135,5 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CSRF_TRUSTED_ORIGINS = ['https://allfood.zapto.org', 'http://allfood.zapto.org', 'allfood.zapto.org']
+CSRF_TRUSTED_ORIGINS = ['https://allfood.zapto.org', 'http://allfood.zapto.org', 'https://allfood.zapto.org/admin',
+                        'https://allfood.zapto.org/admin/login/?next=/admin/']
