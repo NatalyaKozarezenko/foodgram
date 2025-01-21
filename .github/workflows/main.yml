@@ -36,7 +36,7 @@ jobs:
         POSTGRES_DB: foodgram
         DB_HOST: 127.0.0.1
         DB_PORT: 5432
-      run:
+      run: |
         cd backend/
         python -m flake8
 
