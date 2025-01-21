@@ -145,7 +145,12 @@ sudo docker compose -f docker-compose.production.yml exec backend python manage.
 ```
 После загрузки всех данных выведется сообщение "Загрузка закончена."
 
-Запустите проект.
+4.7. Добавте суперпользователя:
+
+```
+sudo docker compose -f docker-compose.production.yml exec backend python manage.py createsuperuser
+```
+Приятного использования.
 
 
 ## Автор
