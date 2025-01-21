@@ -99,7 +99,7 @@ class UserRegSerializer(UserCreateSerializer):
     """Сохранение пользователя."""
 
     class Meta(UserCreateSerializer.Meta):
-        """Мета класс отображение пользователя."""
+        """Мета класс пользователя."""
 
         model = DBUser
         fields = (
