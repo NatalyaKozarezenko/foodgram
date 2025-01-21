@@ -14,8 +14,8 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'default-secret-key')
 DEBUG = os.getenv('DEBUG', False)
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(' ')
-CSRF_TRUSTED_ORIGINS = os.getenv('ALLOWED_HOSTS').split(' ')
-# ['https://allfood.zapto.org', 'http://allfood.zapto.org', 'https://allfood.zapto.org/admin']
+
+CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS').split(' ')
 
 PATH_FOR_CSV = 'data/'
 
