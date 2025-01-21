@@ -1,5 +1,5 @@
 # Проект «Фудграм»
-<!-- ![example workflow](https://github.com/NatalyaKozarezenko/kittygram_final/actions/workflows/main.yml/badge.svg) -->
+![example workflow](https://github.com/NatalyaKozarezenko/foodgram/actions/workflows/main.yml/badge.svg)
 
 ## Описание проекта
 
@@ -127,7 +127,7 @@ scp -i path_to_SSH/SSH_name docker-compose.production.yml \
 4.4. Запустите Docker Compose
 
 ```
-sudo docker compose -f docker-compose.production.yml ps
+sudo docker compose -f docker-compose.production.yml up -d
 ```
 
 4.5. Выполните миграции, соберите статические файлы бэкенда и скопируйте их в /backend_static/static/
