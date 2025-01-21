@@ -19,9 +19,10 @@ import base64
 from django.core.files.base import ContentFile
 from django.core.validators import MinValueValidator
 from djoser.serializers import UserCreateSerializer
+from rest_framework import serializers
+
 from recipes.constants import HTTP_DOMEN, MESSAGE, MIN_VALUE
 from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
-from rest_framework import serializers
 from users.models import DBUser, Subscriptions
 from users.validators import validate_username
 

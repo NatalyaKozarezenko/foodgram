@@ -7,6 +7,7 @@ SubscriptionsAdmin - Подписки.
 
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+
 from users.constants import EMAIL_MAX_LENGTH, MAX_LENGTH_FOR_FIELDS
 from users.validators import validate_username
 
