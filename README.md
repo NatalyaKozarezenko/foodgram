@@ -95,6 +95,7 @@ DB_HOST=db                                             - имя Хоста
 DB_PORT=5432                                           - порт соединения к БД
 SECRET_KEY=SECRET_KEY                                  - SECRET_KEY
 ALLOWED_HOSTS=allfood.zapto.org 127.0.0.1 localhost    - перечень разрешённых хостов (пример)
+CSRF_TRUSTED_ORIGINS=https://allfood.zapto.org         - список доверенных доменов
 SQLITE = False                                         - False для работы с postgresql и True для sqlite.
 DEBUG = False                                          - статус режима отладки  
 ```

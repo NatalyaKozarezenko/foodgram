@@ -14,6 +14,8 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'default-secret-key')
 DEBUG = os.getenv('DEBUG', False)
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(' ')
+CSRF_TRUSTED_ORIGINS = os.getenv('ALLOWED_HOSTS').split(' ')
+# ['https://allfood.zapto.org', 'http://allfood.zapto.org', 'https://allfood.zapto.org/admin']
 
 PATH_FOR_CSV = 'data/'
 
@@ -135,5 +137,3 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CSRF_TRUSTED_ORIGINS = ['https://allfood.zapto.org', 'http://allfood.zapto.org', 'https://allfood.zapto.org/admin',
-                        'https://allfood.zapto.org/admin/login/?next=/admin/']
