@@ -2,9 +2,7 @@
 Перечень функций и классов.
 
 redirect_view - Получение рецепта по короткой ссылке.
-RecipeFilter - Фильтр по данным рецепта.
 TagViewSet - Теги
-IngredientFilter - Фильтр по начальным значением ингредиента.
 IngredientViewSet - Ингредиенты.
 RecipeViewSet - Рецепты.
 CostomsViewSet - Пользователи.
@@ -25,6 +23,8 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from api.filters import IngredientFilter, RecipeFilter
+from api.paginations import CustomPagination
 from api.permissions import IsAuthorOrRead
 from api.serializers import (AvatarSerializer, IngredientSerializer,
                              MinRecipeSerializer, RecipeReadSerializer,
@@ -47,73 +47,12 @@ def redirect_view(request, tiny):
     return redirect(obj)
 
 
-class RecipeFilter(django_filters.FilterSet):
-    """Фильтр по данным рецепта."""
-
-    tags = django_filters.AllValuesMultipleFilter(
-        field_name='tags__slug',
-        distinct=True
-    )
-    is_favorited = django_filters.ChoiceFilter(
-        choices=[(1, 'True'), (0, 'False')],
-        method='is_favorited_filter'
-    )
-    is_in_shopping_cart = django_filters.ChoiceFilter(
-        choices=[(1, 'True'), (0, 'False')],
-        method='is_in_shopping_cart_filter'
-    )
-
-    class Meta:
-        """Мета класс фильтра рецепта."""
-
-        model = Recipe
-        fields = ('tags', 'is_favorited', 'author', 'is_in_shopping_cart')
-
-    def is_favorited_filter(self, queryset, name, value):
-        """Проверка рецепта в избранном."""
-        user = self.request.user
-        if not user.is_authenticated:
-            return queryset.none() if value else queryset
-        if int(value) == 1:
-            return Recipe.objects.filter(is_favorited=user)
-        elif int(value) == 0:
-            return Recipe.objects.exclude(is_favorited=user)
-        else:
-            return queryset
-
-    def is_in_shopping_cart_filter(self, queryset, name, value):
-        """Проверка рецепта в списке покупок."""
-        user = self.request.user
-        if not user.is_authenticated:
-            return queryset.none() if value else queryset
-        if int(value) == 1:
-            return Recipe.objects.filter(is_in_shopping_cart=user)
-        elif int(value) == 0:
-            return Recipe.objects.exclude(is_in_shopping_cart=user)
-        else:
-            return queryset
-
-
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
     """Теги."""
 
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     pagination_class = None
-
-
-class IngredientFilter(django_filters.FilterSet):
-    """Фильтр по начальным значением ингредиента."""
-
-    name = django_filters.CharFilter(
-        field_name='name', lookup_expr='istartswith'
-    )
-
-    class Meta:
-        """Мета класс фильтра ингредиентов."""
-
-        model = Ingredient
-        fields = ['name']
 
 
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
@@ -140,6 +79,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permissions.IsAuthenticatedOrReadOnly,
         IsAuthorOrRead,
     )
+    pagination_class = CustomPagination
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
     filterset_class = RecipeFilter
 
@@ -152,16 +92,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         """Сохранение автора."""
         serializer.save(author=self.request.user)
-
-    def list(self, request, *args, **kwargs):
-        """Вывод по странично от фильтрованных данных."""
-        paginator = PageNumberPagination()
-        filtered_set = RecipeFilter(
-            request.GET, queryset=Recipe.objects.all()
-        ).qs
-        context = paginator.paginate_queryset(filtered_set, request)
-        serializer = RecipeReadSerializer(context, many=True)
-        return paginator.get_paginated_response(serializer.data)
 
     @action(detail=True, methods=['post', 'delete'], url_path='favorite',
             permission_classes=(permissions.IsAuthenticated,))
