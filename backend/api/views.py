@@ -15,7 +15,6 @@ import django_filters
 import short_url
 from django.apps import apps
 from django.http import Http404, HttpResponse
-from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from djoser.serializers import SetPasswordSerializer
@@ -155,11 +154,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user)
 
     def list(self, request, *args, **kwargs):
+        """Вывод по странично от фильтрованных данных."""
         paginator = PageNumberPagination()
         filtered_set = RecipeFilter(
-                       request.GET, 
-                       queryset=Recipe.objects.all()
-                   ).qs
+            request.GET, queryset=Recipe.objects.all()
+        ).qs
         context = paginator.paginate_queryset(filtered_set, request)
         serializer = RecipeReadSerializer(context, many=True)
         return paginator.get_paginated_response(serializer.data)
