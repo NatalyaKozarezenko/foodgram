@@ -3,6 +3,7 @@
 import django_filters
 
 from recipes.models import Ingredient, Recipe, Tag
+from users.models import DBUser
 
 
 class RecipeFilter(django_filters.FilterSet):
@@ -16,6 +17,9 @@ class RecipeFilter(django_filters.FilterSet):
     is_favorited = django_filters.ChoiceFilter(
         choices=[(1, 'True'), (0, 'False')],
         method='is_favorited_filter'
+    )
+    author = django_filters.ModelChoiceFilter(
+        field_name="author", queryset=DBUser.objects.all()
     )
     is_in_shopping_cart = django_filters.ChoiceFilter(
         choices=[(1, 'True'), (0, 'False')],
