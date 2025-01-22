@@ -15,6 +15,7 @@ import django_filters
 import short_url
 from django.apps import apps
 from django.http import Http404, HttpResponse
+from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from djoser.serializers import SetPasswordSerializer
@@ -152,6 +153,16 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         """Сохранение автора."""
         serializer.save(author=self.request.user)
+
+    def list(self, request, *args, **kwargs):
+        paginator = PageNumberPagination()
+        filtered_set = RecipeFilter(
+                       request.GET, 
+                       queryset=Recipe.objects.all()
+                   ).qs
+        context = paginator.paginate_queryset(filtered_set, request)
+        serializer = RecipeReadSerializer(context, many=True)
+        return paginator.get_paginated_response(serializer.data)
 
     @action(detail=True, methods=['post', 'delete'], url_path='favorite',
             permission_classes=(permissions.IsAuthenticated,))
