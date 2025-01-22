@@ -2,15 +2,16 @@
 
 import django_filters
 
-from recipes.models import Ingredient, Recipe
+from recipes.models import Ingredient, Recipe, Tag
 
 
 class RecipeFilter(django_filters.FilterSet):
     """Фильтр по данным рецепта."""
 
-    tags = django_filters.AllValuesMultipleFilter(
-        field_name='tags__slug',
-        distinct=True
+    tags = django_filters.ModelMultipleChoiceFilter(
+        field_name="tags__slug",
+        to_field_name="slug",
+        queryset=Tag.objects.all(),
     )
     is_favorited = django_filters.ChoiceFilter(
         choices=[(1, 'True'), (0, 'False')],
