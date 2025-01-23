@@ -23,7 +23,7 @@ from rest_framework import serializers
 
 from recipes.constants import HTTP_DOMEN, MESSAGE, MIN_VALUE
 from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
-from users.models import DBUser, Subscriptions
+from users.models import DBUser
 from users.validators import validate_username
 
 
@@ -86,7 +86,11 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_is_subscribed(self, obj):
         """Получение подписок пользователя."""
-        return Subscriptions.objects.filter(author=obj.id).exists()
+        request = self.context.get('request', None)
+        if request is not None:
+            if request.user.is_authenticated:
+                return request.user.subscriber_user.filter(author=obj).exists()
+        return False
 
     def get_avatar(self, obj):
         """Получение аватара пользователя."""

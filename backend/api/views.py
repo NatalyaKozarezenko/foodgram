@@ -85,7 +85,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         """Выбор сериализатора."""
-        if self.action == 'list':
+        if self.action in ["list", "retrieve"]:
             return RecipeReadSerializer
         return RecipeWriteSerializer
 
@@ -190,6 +190,8 @@ class CostomsViewSet(DjoserUserViewSet):
 
     queryset = DBUser.objects.all()
     serializer_class = UserSerializer
+    pagination_class = CustomPagination
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     def get_serializer_class(self):
         """Выбор сериализатора."""
