@@ -38,7 +38,7 @@ services:
     ports:
       - 9000:80
     volumes:
-      - ../nginx.conf:/etc/nginx/sites-enabled/default
+      # - ../nginx.conf:/etc/nginx/sites-enabled/default
       - static:/static/
       - media:/media/
     depends_on:
