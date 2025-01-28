@@ -1,4 +1,4 @@
-"""?"""
+"""Что-то написано."""
 
 from django.urls import path
 
