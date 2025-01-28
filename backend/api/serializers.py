@@ -104,6 +104,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
     def get_filter(self, obj):
+        """Поиск наличия записи."""
         request = self.context.get('request', None)
         if request is not None and request.user.is_authenticated:
             return obj.filter(user=request.user).exists()
@@ -157,11 +158,13 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         model = Recipe
 
     def validate_image(self, image):
+        """Проверка что поле не пустое."""
         if image is None:
             raise serializers.ValidationError('Добавьте фотографию рецепта.')
         return image
 
     def get_double(self, data):
+        """Проверка на дубли."""
         if len(data) > len(set(data)):
             raise serializers.ValidationError('Есть дублирующие элементы.')
         return data
@@ -191,7 +194,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         return recipe
 
     def get_ingredient(self, recipe, ingredients):
-        print(ingredients)
+        """Запись данных."""
         RecipeIngredient.objects.bulk_create(
             RecipeIngredient(
                 recipe=recipe,
@@ -253,6 +256,7 @@ class MinRecipeSerializer(serializers.ModelSerializer):
 
 class SubscriptionsSerializer(UsersSerializer):
     """Подписки."""
+
 # Нельзя использовать обманывающие имена классов.
 # Этот не выполяет сериализацию Подписки.
 # См строку  model = DBUser.

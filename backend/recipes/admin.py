@@ -64,6 +64,7 @@ class RecipeIngredientAdmin(admin.ModelAdmin):
 
 class RecipesFilter(admin.SimpleListFilter):
     """Фильтр по наличию рецептов."""
+
     title = 'Рецепты'
     parameter_name = 'get_recipes_count'
 
@@ -75,12 +76,13 @@ class RecipesFilter(admin.SimpleListFilter):
         ]
 
     def queryset(self, request, queryset):
-        print('рецепты', queryset)
+        """Проверка наличия рецептов."""
+        # print('рецепты', queryset)
         if self.value() == 'True':
-            print('есть рецепты')
+            # print('есть рецепты')
             return queryset.filter(recipes__isnull=False).distinct()
         elif self.value() == 'False':
-            print('нет рецепты')
+            # print('нет рецепты')
             return queryset.filter(recipes__isnull=True)
 
 
@@ -99,12 +101,12 @@ class SubscribersFilter(admin.SimpleListFilter):
 
     def queryset(self, request, queryset):
         """Проверка наличия подписчиков."""
-        print('подписчиков', queryset)
+        # print('подписчиков', queryset)
         if self.value() == 'True':
-            print('есть подписчиков')
+            # print('есть подписчиков')
             return queryset.filter(authors__isnull=False).distinct()
         elif self.value() == 'False':
-            print('нет подписчиков')
+            # print('нет подписчиков')
             return queryset.filter(authors__isnull=True)
 
 
@@ -123,12 +125,12 @@ class SubscriptionsFilter(admin.SimpleListFilter):
 
     def queryset(self, request, queryset):
         """Проверка наличия подписок."""
-        print('подписок', queryset)
+        # print('подписок', queryset)
         if self.value() == 'True':
-            print('нет подписки')
+            # print('нет подписки')
             return queryset.filter(subscribers__isnull=False).distinct()
         elif self.value() == 'False':
-            print('подписки')
+            # print('подписки')
             return queryset.filter(subscribers__isnull=True)
 
 

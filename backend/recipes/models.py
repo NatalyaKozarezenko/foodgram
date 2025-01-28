@@ -160,7 +160,8 @@ class RecipeIngredient(models.Model):
     )
 
     class Meta:
-        """Мета класс """
+        """Мета класс связной таблицы."""
+
         verbose_name = "Продукт в рецепте"
         verbose_name_plural = "Продукты в рецепте"
         default_related_name = 'RecipeIngredient'
@@ -200,6 +201,7 @@ class Favorites(models.Model):
         ]
 
     def __str__(self):
+        """Отображение рецептов в избранном."""
         return f'Рецепт {self.recipe} в избранном у {self.user}'
 
 
@@ -233,6 +235,7 @@ class ShoppingCart(models.Model):
         ]
 
     def __str__(self):
+        """Отображение рецептов в списки покупок."""
         return (
             f'Рецепт {self.recipe} в списке покупок у {self.user}'
         )

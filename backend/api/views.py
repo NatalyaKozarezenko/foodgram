@@ -69,6 +69,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user)
 
     def add_delete_data(self, request, models, **kwargs):
+        """Добавление/удаление рецепта."""
         recipe = get_object_or_404(Recipe, pk=kwargs.get('pk'))
         user = request.user
         if request.method == 'POST':
@@ -156,7 +157,8 @@ class UsersViewSet(DjoserUserViewSet):
         return UsersSerializer
 
     def get_permissions(self):
-        print("action=", self.action)
+        """Назначение прав."""
+        # print("action=", self.action)
         if self.action == 'create':
             # создаю пользователя - create - тестила точно надо
             return [permissions.AllowAny()]
@@ -180,6 +182,7 @@ class UsersViewSet(DjoserUserViewSet):
 
     @action(detail=False, methods=['put', 'delete'], url_path='me/avatar')
     def avatar(self, request, *args, **kwargs):
+        """Добавление/удаление аватора."""
         if request.method == 'PUT':
             serializer = AvatarSerializer(request.user, data=request.data)
             if serializer.is_valid():
