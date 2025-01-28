@@ -1,13 +1,14 @@
 """Константы для приложение recipes."""
 
-from django.conf import settings
-
 MAX_LEN_TAG = 32
 MAX_LEN_TEXT = 256
 LOOK_TEXT = 50
 MAX_LEN_NAME_INGREDIENT = 128
 MAX_LEN_MEASUREMENT_UNIT = 64
-MIN_VALUE = 1
-MESSAGE = f'Убедитесь, что это значение больше либо равно {MIN_VALUE}.'
-HTTP_DOMEN = f'http://{settings.ALLOWED_HOSTS[0]}/'
-NAME_FILE = 'output.txt'
+MIN_AMOUNT = 1
+MIN_COOKING_TIME = 1
+EMAIL_MAX_LENGTH = 254
+MAX_LENGTH_FIRST_NAME = 150
+MAX_LENGTH_LAST_NAME = 150
+MAX_LENGTH_USERNAME = 150
+OK_USERNAME = r'[\w.@+-]+'

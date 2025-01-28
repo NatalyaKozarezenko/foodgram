@@ -1,13 +1,11 @@
 """RecipeDetailView - Ссылка на рецепт."""
 
-from rest_framework.views import APIView
+from django.shortcuts import get_object_or_404, redirect
 
-from api.serializers import RecipeReadSerializer
 from recipes.models import Recipe
 
 
-class RecipeDetailView(APIView):
-    """Ссылка на рецепт."""
-
-    queryset = Recipe.objects.all()
-    serializer_class = RecipeReadSerializer
+def redirect_view(request, id):
+    recipe = get_object_or_404(Recipe, pk=id)
+    # получаем url из get_absolute_url в модели
+    return redirect(recipe)

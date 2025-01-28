@@ -5,7 +5,7 @@ from rest_framework.pagination import PageNumberPagination
 from api.constants import PAGE_SIZE_PAGINATOR
 
 
-class CustomPagination(PageNumberPagination):
+class Pagination(PageNumberPagination):
     """Построничный вывод."""
 
     page_size = PAGE_SIZE_PAGINATOR

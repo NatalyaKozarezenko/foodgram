@@ -46,41 +46,11 @@
 После регистрации новый пользователь получает изображение профиля по умолчанию. При клике на аватар у пользователя в шапке сайта появляется возможность поменять его или удалить.
 
 ## Стек
-asgiref
-certifi
-charset-normalizer
-Django
-idna
-packaging
-python-dotenv
-requests
-sqlparse
-tomli
-typing_extensions
-urllib3
-gunicorn
-djangorestframework
-djangorestframework_simplejwt
-djoser
-python-dotenv
-django-filter
-short-url
-Pillow
-tzdata
-cffi
-cryptography
-defusedxml
-oauthlib
-pycparser
-drf-extra-fields
-PyJWT
-PyYAML
-python3-openid
-requests
-requests-oauthlib
-social-auth-app-django
-social-auth-core
 
+Python
+Django
+Djoser
+<!-- Оставьте 5..10 элементов техно-стека. -->
 
 ## Развертивание
 
@@ -102,43 +72,28 @@ DEBUG = False                                          - статус режим
 
 
 ## 4. Деплой проекта на сервер
-4.1. Подключитесь к серверу:
 
-```
-ssh -i путь_до_файла_с_SSH_ключом/название_файла_с_SSH_ключом имя_пользователя@ip_адрес_сервера
-```
-
-4.2. Установите Docker Compose
-
-```
-sudo apt update
-sudo apt install curl
-curl -fSL https://get.docker.com -o get-docker.sh
-sudo sh ./get-docker.sh
-sudo apt install docker-compose-plugin
-```
-
-4.3. Создайте на сервере директорию foodgram и скопируйте в неё файлы docker-compose.production.yml и .env и nginx.conf
+4.1. Создайте на сервере директорию foodgram и скопируйте в неё файлы docker-compose.production.yml и .env и nginx.conf
 
 ```
 scp -i path_to_SSH/SSH_name docker-compose.production.yml \
     username@server_ip:/home/username/taski/docker-compose.production.yml
 ```
 
-4.4. Запустите Docker Compose
+4.2. Запустите Docker Compose
 
 ```
 sudo docker compose -f docker-compose.production.yml up -d
 ```
 
-4.5. Выполните миграции, соберите статические файлы бэкенда и скопируйте их в /backend_static/static/
+4.3. Выполните миграции, соберите статические файлы бэкенда и скопируйте их в /backend_static/static/
 
 ```
 sudo docker compose -f docker-compose.production.yml exec backend python manage.py migrate
 sudo docker compose -f docker-compose.production.yml exec backend python manage.py collectstatic
 sudo docker compose -f docker-compose.production.yml exec backend cp -r /app/collected_static/. /backend_static/static/
 ```
-4.6. Загрузите данные из csv-файлов:
+4.4. Загрузите данные из csv-файлов:
 Разместите csv-файлы в дирректории директории foodgram/data/ и запустите скрипт командой:
 
 ```
@@ -146,7 +101,7 @@ sudo docker compose -f docker-compose.production.yml exec backend python manage.
 ```
 После загрузки всех данных выведется сообщение "Загрузка закончена."
 
-4.7. Добавьте суперпользователя:
+4.5. Добавьте суперпользователя:
 
 ```
 sudo docker compose -f docker-compose.production.yml exec backend python manage.py createsuperuser
@@ -156,3 +111,7 @@ sudo docker compose -f docker-compose.production.yml exec backend python manage.
 
 ## Автор
 [Наталья Козарезенко](https://github.com/NatalyaKozarezenko/) 
+
+<!-- Мало!
+Не хватает ссылки на техно-доку к API сервера.
+Желательно показывать команды локального развертывания без Докера. -->
