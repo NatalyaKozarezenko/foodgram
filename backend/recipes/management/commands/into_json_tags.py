@@ -1,13 +1,19 @@
-from django.core.management.base import BaseCommand
+"""Загрузка json-данных в модель Теги."""
+
 import json
+
+from django.core.management.base import BaseCommand
 
 from recipes.models import Tag
 
 
 class Command(BaseCommand):
-    help = 'Загрузка json-данных в модель Ингрединеты.'
+    """Загрузка json-данных в модель Теги."""
+
+    help = 'Загрузка json-данных в модель Теги.'
 
     def handle(self, *args, **options):
+        """Загрузка данных."""
         filename = 'data/tags.json'
         try:
             with open(filename, 'r', encoding='utf-8') as f:

@@ -1,16 +1,20 @@
 """Загрузка json-данных в модель Ингрединеты."""
 
-from django.core.management.base import BaseCommand
 import json
+
+from django.core.management.base import BaseCommand
 
 from foodgram_backend.settings import PATH_FOR_CSV
 from recipes.models import Ingredient
 
 
 class Command(BaseCommand):
+    """Загрузка json-данных в модель Ингрединеты."""
+
     help = 'Загрузка json-данных в модель Ингрединеты.'
 
     def handle(self, *args, **options):
+        """Загрузка данных."""
         filename = PATH_FOR_CSV + 'ingredients.json'
         try:
             with open(filename, 'r', encoding='utf-8') as f:
