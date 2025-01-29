@@ -84,7 +84,6 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     """Отображение рецептов."""
 
     tags = TagSerializer(many=True)
-    # image = serializers.SerializerMethodField() # Лишняя строка.
     ingredients = RecipeIngredientSerializer(
         source='RecipeIngredient',
         many=True, read_only=True
@@ -117,14 +116,6 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     def get_is_in_shopping_cart(self, obj):
         """Проверка наличия в списке покупок."""
         return self.get_filter(obj.is_in_shopping_cart)
-
-    # # Лишний метод.
-    # def get_image(self, obj):
-    #     """Получение картики рецепта."""
-    #     if obj.image:
-    #         return f'http://{settings.ALLOWED_HOSTS[0]}/
-    # {obj.image.url.lstrip("/")}'
-    #     return None
 
 
 class RecipeIngredientCreateSerializer(serializers.ModelSerializer):
@@ -215,9 +206,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         """Изменение рецепта."""
         tags = validated_data.pop('tags')
-        print(tags)
         ingredients = validated_data.pop('ingredients')
-        print(ingredients)
         instance = super().update(instance, validated_data)
         if tags is not None:
             instance.tags.clear()
@@ -230,14 +219,13 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         """Отображение рецепта с полными данными."""
-        return RecipeReadSerializer().to_representation(instance)
+        return RecipeReadSerializer(
+            instance, context={'request': self.context.get('request')}
+        ).to_representation(instance)
 
 
 class MinRecipeSerializer(serializers.ModelSerializer):
     """Отображение рецепта с минимальными данными."""
-
-    # image = serializers.SerializerMethodField(source='image.url')
-# Лишняя строка.
 
     class Meta:
         """Мета класс рецепта с минимальными данными."""
@@ -245,24 +233,10 @@ class MinRecipeSerializer(serializers.ModelSerializer):
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
 
-    def get_image(self, obj):
-        # без него не выводится при добавлении в список покупок url
-        """Получение картики рецепта."""
-# # Лишний метод.
-#         if obj.image:
-#             return f'{settings.HOST}{obj.image.url}'
-#         return None
 
-
-class SubscriptionsSerializer(UsersSerializer):
+class UsersSubscriptionsSerializer(UsersSerializer):
     """Подписки."""
 
-# Нельзя использовать обманывающие имена классов.
-# Этот не выполяет сериализацию Подписки.
-# См строку  model = DBUser.
-# Поменяйте базовый класс и избавьтесь от строк is_subscribed,
-# def get_is_subscribed. - Изменила
-    # is_subscribed = serializers.SerializerMethodField()
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.IntegerField(source='recipes.count')
 

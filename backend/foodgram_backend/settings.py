@@ -15,8 +15,9 @@ DEBUG = os.getenv('DEBUG', False)
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(' ')
 
-CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS').split(' ')
+# CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS').split(' ')
 HOST = os.getenv('HOST', 'http://127.0.0.1:8000')
+# https://allfood.zapto.org
 
 PATH_FOR_CSV = 'data/'
 
@@ -39,21 +40,14 @@ DJOSER = {
     'HIDE_USERS': False,
     'LOGIN_FIELD': 'email',
     'SERIALIZERS': {
-        # создавал с моим сериализатором
-        'user_create': 'api.serializers.UserCreateSerializer',
-        # выводит /users/me/ как мне надо:
-        # 'current_user': 'api.serializers.UsersSerializer',
-        # выводит /users/id/ как мне надо:
-        # 'user': 'api.serializers.UserSerializer',
-        # выводит /users/ как мне надо:
-        # 'user_list': 'api.serializers.UserSerializer',
+        'current_user': 'api.serializers.UsersSerializer',
         'set_password': 'djoser.serializers.SetPasswordSerializer',
-        # 'set_password_retype': 'djoser.serializers.SetPasswordRetypeSerializer',
+
     },
     'PERMISSIONS': {
-        # не работает
-        'me': ['rest_framework.permissions.IsAuthenticated'],
-        'current_user': ['rest_framework.permissions.IsAuthenticated'],
+        'user_create': ['rest_framework.permissions.AllowAny'],
+        'user_list': ['rest_framework.permissions.IsAuthenticatedOrReadOnly'],
+        'user': ['rest_framework.permissions.IsAuthenticatedOrReadOnly'],
     },
 }
 

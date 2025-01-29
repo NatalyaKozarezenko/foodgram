@@ -7,12 +7,13 @@ Recipe - Рецепты.
 RecipeIngredient - Корректировка связной таблицы рецептов и продуктов.
 DBUser - Пользователи.
 SubscriptionsAdmin - Подписки.
+Favorites - Избранное.
+ShoppingCart - Список покупок.
 """
 
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.urls import reverse
 
 from recipes.constants import (EMAIL_MAX_LENGTH, LOOK_TEXT,
                                MAX_LEN_MEASUREMENT_UNIT,
@@ -136,11 +137,6 @@ class Recipe(models.Model):
     def __str__(self):
         """Отображение название рецепта."""
         return self.name[:LOOK_TEXT]
-
-    def get_absolute_url(self):
-        """Получение url рецепта."""
-        return reverse('recipes:recipes-detail', args=[self.id])
-# Укажите приложение, из которого берете имя маршрута.
 
 
 class RecipeIngredient(models.Model):

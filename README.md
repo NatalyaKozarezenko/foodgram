@@ -49,29 +49,82 @@
 
 Python
 Django
+Django-filter
+Djangorestframework
 Djoser
-<!-- Оставьте 5..10 элементов техно-стека. -->
 
 ## Развертивание
 
-## 1. Настройка .env файла
-1.1. В корне проекта создайте файл .env и заполните следующими данными:
+### 1. Установка проекта
+1.1. Клонируйте репозиторий и перейдите в него:
 
 ```
-POSTGRES_DB=foodgram                                   - имя базы данных
-POSTGRES_USER=foodgram_user                            - имя пользователя в БД
-POSTGRES_PASSWORD=foodgram_password                    - пароль для пользователя к БД
-DB_HOST=db                                             - имя Хоста
-DB_PORT=5432                                           - порт соединения к БД
-SECRET_KEY=SECRET_KEY                                  - SECRET_KEY
-ALLOWED_HOSTS=allfood.zapto.org 127.0.0.1 localhost    - перечень разрешённых хостов (пример)
-CSRF_TRUSTED_ORIGINS=https://allfood.zapto.org         - список доверенных доменов
-SQLITE = False                                         - False для работы с postgresql и True для sqlite.
-DEBUG = False                                          - статус режима отладки  
+git clone https://github.com/NatalyaKozarezenko/foodgram
+cd foodgram
 ```
 
+1.2. Cоздайте и активируйте виртуальное окружение:
 
-## 4. Деплой проекта на сервер
+```
+python3 -m venv env
+source venv/bin/activate
+```
+
+1.3. По необходимости установите/обновите пакетный менеджер pip:
+
+```
+python3 -m pip install --upgrade pip
+```
+
+1.4. Установите зависимости из файла requirements.txt:
+
+```
+pip install -r requirements.txt
+```
+
+1.5. Выполните миграции:
+
+```
+python3 manage.py migrate
+```
+
+## 2. Настройка .env файла
+2.1. В корне проекта создайте файл .env и заполните следующими данными:
+
+```
+POSTGRES_DB=foodgram                                 - имя базы данных
+POSTGRES_USER=foodgram_user                          - имя пользователя в БД
+POSTGRES_PASSWORD=foodgram_password                  - пароль для пользователя к БД
+DB_HOST=db                                           - имя Хоста
+DB_PORT=5432                                         - порт соединения к БД
+SECRET_KEY=SECRET_KEY                                - SECRET_KEY
+ALLOWED_HOSTS=127.0.0.1 localhost                    - перечень разрешённых хостов (пример)
+SQLITE = False                                       - False для работы с postgresql и True для sqlite.
+DEBUG = False                                        - статус режима отладки
+HOST=http://127.0.0.1:8000                           - адрес для доступа приложения
+```
+
+## 3. Создание Docker-образов
+3.1. Замените username на ваш логин на DockerHub:
+
+```
+cd frontend
+docker build -t username/foodgram_frontend .
+cd ../backend
+docker build -t username/foodgram_backend .
+cd ../nginx
+docker build -t username/foodgram_gateway .
+```
+ 
+3.2. Загрузите образы на DockerHub:
+
+```
+docker push username/foodgram_frontend
+docker push username/foodgram_backend
+docker push username/foodgram_gateway
+```
+
+### 4. Деплой проекта на сервер
 
 4.1. Создайте на сервере директорию foodgram и скопируйте в неё файлы docker-compose.production.yml и .env и nginx.conf
 
@@ -80,20 +133,27 @@ scp -i path_to_SSH/SSH_name docker-compose.production.yml \
     username@server_ip:/home/username/taski/docker-compose.production.yml
 ```
 
-4.2. Запустите Docker Compose
+4.2. В файле .env и дозаполните следующими данными:
+
+```
+ALLOWED_HOSTS=allfood.zapto.org 127.0.0.1 localhost    - перечень разрешённых хостов (пример)
+CSRF_TRUSTED_ORIGINS=https://allfood.zapto.org         - список доверенных доменов
+HOST=https://allfood.zapto.org                         - доменное имя сервера
+
+4.3. Запустите Docker Compose
 
 ```
 sudo docker compose -f docker-compose.production.yml up -d
 ```
 
-4.3. Выполните миграции, соберите статические файлы бэкенда и скопируйте их в /backend_static/static/
+4.4. Выполните миграции, соберите статические файлы бэкенда и скопируйте их в /backend_static/static/
 
 ```
 sudo docker compose -f docker-compose.production.yml exec backend python manage.py migrate
 sudo docker compose -f docker-compose.production.yml exec backend python manage.py collectstatic
 sudo docker compose -f docker-compose.production.yml exec backend cp -r /app/collected_static/. /backend_static/static/
 ```
-4.4. Загрузите данные из csv-файлов:
+4.5. Загрузите данные из csv-файлов:
 Разместите csv-файлы в дирректории директории foodgram/data/ и запустите скрипт командой:
 
 ```
@@ -101,17 +161,15 @@ sudo docker compose -f docker-compose.production.yml exec backend python manage.
 ```
 После загрузки всех данных выведется сообщение "Загрузка закончена."
 
-4.5. Добавьте суперпользователя:
+4.6. Добавьте суперпользователя:
 
 ```
 sudo docker compose -f docker-compose.production.yml exec backend python manage.py createsuperuser
 ```
 Приятного использования.
 
+## техническая документация
+Полная [документация](https://allfood.zapto.org/api/docs/)
 
 ## Автор
 [Наталья Козарезенко](https://github.com/NatalyaKozarezenko/) 
-
-<!-- Мало!
-Не хватает ссылки на техно-доку к API сервера.
-Желательно показывать команды локального развертывания без Докера. -->

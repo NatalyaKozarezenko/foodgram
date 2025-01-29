@@ -34,5 +34,6 @@ services:
     ports:
       - 9000:80
     volumes:
+      - ../docs/:/usr/share/nginx/html/api/docs/
       - static:/static
       - media:/media/

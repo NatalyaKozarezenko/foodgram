@@ -77,12 +77,9 @@ class RecipesFilter(admin.SimpleListFilter):
 
     def queryset(self, request, queryset):
         """Проверка наличия рецептов."""
-        # print('рецепты', queryset)
         if self.value() == 'True':
-            # print('есть рецепты')
             return queryset.filter(recipes__isnull=False).distinct()
         elif self.value() == 'False':
-            # print('нет рецепты')
             return queryset.filter(recipes__isnull=True)
 
 
@@ -101,12 +98,9 @@ class SubscribersFilter(admin.SimpleListFilter):
 
     def queryset(self, request, queryset):
         """Проверка наличия подписчиков."""
-        # print('подписчиков', queryset)
         if self.value() == 'True':
-            # print('есть подписчиков')
             return queryset.filter(authors__isnull=False).distinct()
         elif self.value() == 'False':
-            # print('нет подписчиков')
             return queryset.filter(authors__isnull=True)
 
 
@@ -125,12 +119,9 @@ class SubscriptionsFilter(admin.SimpleListFilter):
 
     def queryset(self, request, queryset):
         """Проверка наличия подписок."""
-        # print('подписок', queryset)
         if self.value() == 'True':
-            # print('нет подписки')
             return queryset.filter(subscribers__isnull=False).distinct()
         elif self.value() == 'False':
-            # print('подписки')
             return queryset.filter(subscribers__isnull=True)
 
 

@@ -4,7 +4,6 @@ import django_filters
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
-from djoser.serializers import SetPasswordSerializer, UserCreateSerializer
 from djoser.views import UserViewSet as DjoserUserViewSet
 from rest_framework import filters, permissions, serializers, status, viewsets
 from rest_framework.decorators import action
@@ -16,8 +15,8 @@ from api.paginations import Pagination
 from api.permissions import IsAuthorOrRead
 from api.serializers import (AvatarSerializer, IngredientSerializer,
                              MinRecipeSerializer, RecipeReadSerializer,
-                             RecipeWriteSerializer, SubscriptionsSerializer,
-                             TagSerializer, UsersSerializer)
+                             RecipeWriteSerializer, TagSerializer,
+                             UsersSerializer, UsersSubscriptionsSerializer)
 from recipes.models import (DBUser, Favorites, Ingredient, Recipe,
                             RecipeIngredient, ShoppingCart, Subscriptions, Tag)
 
@@ -69,7 +68,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user)
 
     def add_delete_data(self, request, models, **kwargs):
-        """Добавление/удаление рецепта."""
+        """Добавление/удаление рецепта в Избранное или список покупок."""
         recipe = get_object_or_404(Recipe, pk=kwargs.get('pk'))
         user = request.user
         if request.method == 'POST':
@@ -78,7 +77,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 user=user
             )
             if created:
-                serializer = MinRecipeSerializer(recipe)
+                serializer = MinRecipeSerializer(
+                    recipe, context={'request': request}
+                )
                 return Response(
                     serializer.data, status=status.HTTP_201_CREATED
                 )
@@ -143,48 +144,20 @@ class UsersViewSet(DjoserUserViewSet):
     queryset = DBUser.objects.all()
     serializer_class = UsersSerializer
     pagination_class = Pagination
-# permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
-# убрала т к есть  def get_permissions
 
-    def get_serializer_class(self):
-        # Лишний метод.
-        """Выбор сериализатора."""
-        if self.action == 'create':
-            return UserCreateSerializer
-            # return UserRegSerializer
-        if self.action == 'set_password':
-            return SetPasswordSerializer
-        return UsersSerializer
-
-    def get_permissions(self):
-        """Назначение прав."""
-        # print("action=", self.action)
-        if self.action == 'create':
-            # создаю пользователя - create - тестила точно надо
-            return [permissions.AllowAny()]
-        if self.action in ['current_user', 'add_subscribe', 'me']:
-            # доб в подписки - add_subscribe - тестила точно надо
-            # уточнить action для user/me - выдало me, а current_user???
-            return [permissions.IsAuthenticated()]
-        return [permissions.IsAuthenticatedOrReadOnly()]
-# Так было: ТЕСТИРУЮ
-# Замените три строки на вызов метода базового класса.
-# А зачем тогда вообще нужен этот метод? # Ради смены permission!
-# Но! # Поменять permission удобнее не тут, а через метод get_permissions().
-# Рекомендую так и сделать.
-    # @action(detail=False, methods=['get'], url_path='me',
-    #         permission_classes=(permissions.IsAuthenticated,))
-    # def me(self, request, *args, **kwargs):
-    #     """Просмотр своих данных."""
-    #     author = get_object_or_404(DBUser, username=request.user)
-    #     serializer = UserSerializer(author, context={'request': request})
-    #     return Response(serializer.data, status=status.HTTP_201_CREATED)
+    @action(detail=False, methods=['get'], url_path='me',
+            permission_classes=(permissions.IsAuthenticated,))
+    def me(self, request, *args, **kwargs):
+        """Просмотр своих данных."""
+        return super().me(request, *args, **kwargs)
 
     @action(detail=False, methods=['put', 'delete'], url_path='me/avatar')
     def avatar(self, request, *args, **kwargs):
         """Добавление/удаление аватора."""
         if request.method == 'PUT':
-            serializer = AvatarSerializer(request.user, data=request.data)
+            serializer = AvatarSerializer(
+                request.user, data=request.data, context={'request': request}
+            )
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_200_OK)
@@ -208,7 +181,7 @@ class UsersViewSet(DjoserUserViewSet):
         authors = [subscription.author for subscription in subscriptions]
         paginator = Pagination()
         result_page = paginator.paginate_queryset(authors, request)
-        serializer = SubscriptionsSerializer(
+        serializer = UsersSubscriptionsSerializer(
             result_page, many=True, context={'request': request}
         )
         return paginator.get_paginated_response(serializer.data)
@@ -233,7 +206,7 @@ class UsersViewSet(DjoserUserViewSet):
                     {'errors': f'Вы уже подписаны на пользователя {author}.'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-            serializer = SubscriptionsSerializer(
+            serializer = UsersSubscriptionsSerializer(
                 author,
                 context={'request': request}
             )
