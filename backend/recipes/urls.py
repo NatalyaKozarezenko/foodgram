@@ -1,4 +1,4 @@
-"""Что-то написано."""
+"""Url адреса приложения recipes."""
 
 from django.urls import path
 

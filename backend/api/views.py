@@ -1,4 +1,4 @@
-"""??????."""
+"""Представления приложения api."""
 
 import django_filters
 from django.conf import settings

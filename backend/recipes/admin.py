@@ -1,9 +1,9 @@
 """
 Настройка админки.
 
-IngredientAdmin - Продукты
-TagAdmin - Теги
-RecipeAdmin - Рецепты
+IngredientAdmin - Продукты.
+TagAdmin - Теги.
+RecipeAdmin - Рецепты.
 UserAdmin - Пользователи.
 SubscriptionsAdmin - Подписки.
 """

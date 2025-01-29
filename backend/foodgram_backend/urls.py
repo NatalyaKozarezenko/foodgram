@@ -1,4 +1,4 @@
-"""Что-то написано."""
+"""Головной url."""
 
 from django.conf import settings
 from django.conf.urls.static import static

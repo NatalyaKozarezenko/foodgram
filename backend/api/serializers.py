@@ -1,4 +1,4 @@
-"""??????."""
+"""Проверка и преобразование."""
 
 from django.conf import settings
 from djoser.serializers import UserSerializer as DjoserUserSerializer

@@ -1,4 +1,4 @@
-"""Настройки построничного ывода."""
+"""Настройки построничного вывода."""
 
 from rest_framework.pagination import PageNumberPagination
 

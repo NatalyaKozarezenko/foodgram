@@ -1,4 +1,5 @@
 """recipes.apps.RecipesConfig."""
+
 from django.apps import AppConfig
 
 
