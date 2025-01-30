@@ -16,8 +16,6 @@ DEBUG = os.getenv('DEBUG', False)
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(' ')
 
 CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS').split(' ')
-# HOST = os.getenv('HOST', 'http://127.0.0.1:8000')
-HOST = os.getenv('HOST', 'https://allfood.zapto.org')
 
 PATH_FOR_CSV = 'data/'
 

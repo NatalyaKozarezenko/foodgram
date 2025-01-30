@@ -49,9 +49,10 @@
 
 Python
 Django
-Django-filter
 Djangorestframework
-Djoser
+PostgreSQL
+Git
+Docker
 
 ## Развертивание
 
@@ -101,28 +102,8 @@ SECRET_KEY=SECRET_KEY                                - SECRET_KEY
 ALLOWED_HOSTS=127.0.0.1 localhost                    - перечень разрешённых хостов (пример)
 SQLITE = False                                       - False для работы с postgresql и True для sqlite.
 DEBUG = False                                        - статус режима отладки
-HOST=http://127.0.0.1:8000                           - адрес для доступа приложения
 ```
 
-## 3. Создание Docker-образов
-3.1. Замените username на ваш логин на DockerHub:
-
-```
-cd frontend
-docker build -t username/foodgram_frontend .
-cd ../backend
-docker build -t username/foodgram_backend .
-cd ../nginx
-docker build -t username/foodgram_gateway .
-```
- 
-3.2. Загрузите образы на DockerHub:
-
-```
-docker push username/foodgram_frontend
-docker push username/foodgram_backend
-docker push username/foodgram_gateway
-```
 
 ### 4. Деплой проекта на сервер
 
@@ -153,13 +134,13 @@ sudo docker compose -f docker-compose.production.yml exec backend python manage.
 sudo docker compose -f docker-compose.production.yml exec backend python manage.py collectstatic
 sudo docker compose -f docker-compose.production.yml exec backend cp -r /app/collected_static/. /backend_static/static/
 ```
-4.5. Загрузите данные из csv-файлов:
-Разместите csv-файлы в дирректории директории foodgram/data/ и запустите скрипт командой:
+4.5. Загрузите данные из json-файлов:
+Разместите json-файлы в дирректории директории foodgram/data/ и запустите скрипт командой:
 
 ```
-sudo docker compose -f docker-compose.production.yml exec backend python manage.py csv_loader
+sudo docker compose -f docker-compose.production.yml exec backend python manage.py into_json_ingredients
+sudo docker compose -f docker-compose.production.yml exec backend python manage.py into_json_tags
 ```
-После загрузки всех данных выведется сообщение "Загрузка закончена."
 
 4.6. Добавьте суперпользователя:
 
