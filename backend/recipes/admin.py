@@ -52,17 +52,23 @@ class CookingTimeFilter(admin.SimpleListFilter):
             Min('cooking_time'), Max('cooking_time')
         )
         min_cooking_time = cooking_times['cooking_time__min']
+        print(min_cooking_time)
         max_cooking_time = cooking_times['cooking_time__max']
-        delta = (max_cooking_time - min_cooking_time) // 3
-        self.quickly_time = min_cooking_time + delta
-        self.long_time = max_cooking_time - delta
-        quickly_count = model_admin.model.objects.filter(
-            cooking_time__lt=self.quickly_time).count()
-        medium_count = model_admin.model.objects.filter(
-            cooking_time__gt=self.quickly_time,
-            cooking_time__lt=self.long_time).count()
-        long_count = model_admin.model.objects.filter(
-            cooking_time__gt=self.long_time).count()
+        if min_cooking_time is None or min_cooking_time is None:
+            delta = long_count = 0
+            self.quickly_time = self.long_time = 0
+            quickly_count = medium_count = 0
+        else:
+            delta = (max_cooking_time - min_cooking_time) // 3
+            self.quickly_time = min_cooking_time + delta
+            self.long_time = max_cooking_time - delta
+            quickly_count = model_admin.model.objects.filter(
+                cooking_time__lt=self.quickly_time).count()
+            medium_count = model_admin.model.objects.filter(
+                cooking_time__gt=self.quickly_time,
+                cooking_time__lt=self.long_time).count()
+            long_count = model_admin.model.objects.filter(
+                cooking_time__gt=self.long_time).count()
         return [
             ('quickly', f'Быстрее {self.quickly_time} мин ({quickly_count})'),
             ('medium', f'Быстрее {self.long_time} мин ({medium_count})'),

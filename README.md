@@ -105,36 +105,36 @@ DEBUG = False                                        - статус режима
 ```
 
 
-### 4. Деплой проекта на сервер
+### 3. Деплой проекта на сервер
 
-4.1. Создайте на сервере директорию foodgram и скопируйте в неё файлы docker-compose.production.yml и .env и nginx.conf
+3.1. Создайте на сервере директорию foodgram и скопируйте в неё файлы docker-compose.production.yml и .env и nginx.conf
 
 ```
 scp -i path_to_SSH/SSH_name docker-compose.production.yml \
     username@server_ip:/home/username/taski/docker-compose.production.yml
 ```
 
-4.2. В файле .env и дозаполните следующими данными:
+3.2. В файле .env и дозаполните следующими данными:
 
 ```
 ALLOWED_HOSTS=allfood.zapto.org 127.0.0.1 localhost    - перечень разрешённых хостов (пример)
 CSRF_TRUSTED_ORIGINS=https://allfood.zapto.org         - список доверенных доменов
-HOST=https://allfood.zapto.org                         - доменное имя сервера
+```
 
-4.3. Запустите Docker Compose
+3.3. Запустите Docker Compose
 
 ```
 sudo docker compose -f docker-compose.production.yml up -d
 ```
 
-4.4. Выполните миграции, соберите статические файлы бэкенда и скопируйте их в /backend_static/static/
+3.4. Выполните миграции, соберите статические файлы бэкенда и скопируйте их в /backend_static/static/
 
 ```
 sudo docker compose -f docker-compose.production.yml exec backend python manage.py migrate
 sudo docker compose -f docker-compose.production.yml exec backend python manage.py collectstatic
 sudo docker compose -f docker-compose.production.yml exec backend cp -r /app/collected_static/. /backend_static/static/
 ```
-4.5. Загрузите данные из json-файлов:
+3.5. Загрузите данные из json-файлов:
 Разместите json-файлы в дирректории директории foodgram/data/ и запустите скрипт командой:
 
 ```
@@ -142,7 +142,7 @@ sudo docker compose -f docker-compose.production.yml exec backend python manage.
 sudo docker compose -f docker-compose.production.yml exec backend python manage.py into_json_tags
 ```
 
-4.6. Добавьте суперпользователя:
+3.6. Добавьте суперпользователя:
 
 ```
 sudo docker compose -f docker-compose.production.yml exec backend python manage.py createsuperuser
