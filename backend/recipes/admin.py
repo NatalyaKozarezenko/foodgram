@@ -148,6 +148,7 @@ class BaseFilter(admin.SimpleListFilter):
         return self.filter_fields
 
     def queryset(self, request, queryset):
+        """Запросы фильтра."""
         filter_params = self.queryset_params.get(self.value(), {})
         if filter_params:
             return queryset.filter(**filter_params).distinct()

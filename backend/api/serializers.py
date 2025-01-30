@@ -241,6 +241,8 @@ class UsersSubscriptionsSerializer(UsersSerializer):
 
 
 class AvatarSerializer(serializers.ModelSerializer):
+    """Аватар."""
+
     avatar = Base64ImageField(use_url=True, required=True)
 
     class Meta:
