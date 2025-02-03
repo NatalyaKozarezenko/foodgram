@@ -117,7 +117,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
             is_in_shopping_cart__user=user).select_related('author').values(
                 'id',
                 'name',
-                'author__username'
+                'author__first_name',
+                'author__last_name',
         )
         ingredients_info = RecipeIngredient.objects.filter(
             recipe__in=[recipe['id'] for recipe in recipes]).select_related(
