@@ -3,8 +3,6 @@
 
 def get_output(recipes, ingredients_info, current_date):
     """Формирование тела СпискаПокупок."""
-
-    print(ingredients_info)
     return '\n'.join(
         [f'Список покупок от {current_date.strftime("%d.%m.%Y")}',
          'Мера (ед.изм.) и название:']
