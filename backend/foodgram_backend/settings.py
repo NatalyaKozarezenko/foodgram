@@ -16,6 +16,7 @@ DEBUG = os.getenv('DEBUG', False)
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(' ')
 
 CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS').split(' ')
+SECURE_SSL_REDIRECT = True
 
 PATH_FOR_CSV = 'data/'
 
