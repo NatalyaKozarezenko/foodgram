@@ -11,33 +11,34 @@ from recipes.models import (DBUser, Favorites, Ingredient, Recipe,
 admin.site.empty_value_display = 'Не задано'
 
 
+class CountRecipesMixin:
+    """Миксин счёта рецептов."""
+
+    @admin.display(description='Рецепты')
+    def get_count_in_recipes(self, obj):
+        """Количество рецептов."""
+        if obj == Ingredient:
+            return Ingredient.RecipeIngredient.count()
+        return obj.recipes.count()
+
+
 @admin.register(Ingredient)
-class IngredientAdmin(admin.ModelAdmin):
+class IngredientAdmin(CountRecipesMixin, admin.ModelAdmin):
     """Продукты."""
 
     list_display = (
-        'name', 'measurement_unit', 'get_count_ingredient_in_recipes'
+        'name', 'measurement_unit', 'get_count_in_recipes'
     )
     search_fields = ('name', 'measurement_unit')
     list_filter = ('measurement_unit',)
 
-    @admin.display(description='Количество рецептов')
-    def get_count_ingredient_in_recipes(self, ingredient):
-        """Количество рецептов с данным ингредиентом."""
-        return ingredient.RecipeIngredient.count()
-
 
 @admin.register(Tag)
-class TagAdmin(admin.ModelAdmin):
+class TagAdmin(CountRecipesMixin, admin.ModelAdmin):
     """Теги."""
 
-    list_display = ('name', 'slug', 'get_count_tag_in_recipes')
+    list_display = ('name', 'slug', 'get_count_in_recipes')
     search_fields = ('name', 'slug')
-
-    @admin.display(description='Количество рецептов')
-    def get_count_tag_in_recipes(self, tag):
-        """Количество рецептов с данным тегом."""
-        return tag.recipes.count()
 
 
 class CookingTimeFilter(admin.SimpleListFilter):
@@ -46,46 +47,57 @@ class CookingTimeFilter(admin.SimpleListFilter):
     title = 'Время готовки'
     parameter_name = 'cooking_time'
 
+    def get_filter(self, obj, period, count):
+        """Объекты за период."""
+        print(period)
+        if count:
+            return obj.filter(cooking_time__range=period).count()
+        return obj.filter(cooking_time__range=period).distinct()
+
     def lookups(self, request, model_admin):
         """Параметры фильтра."""
         cooking_times = model_admin.model.objects.aggregate(
             Min('cooking_time'), Max('cooking_time')
         )
         min_cooking_time = cooking_times['cooking_time__min']
-        print(min_cooking_time)
         max_cooking_time = cooking_times['cooking_time__max']
-        if min_cooking_time is None or min_cooking_time is None:
-            delta = long_count = 0
-            self.quickly_time = self.long_time = 0
-            quickly_count = medium_count = 0
-        else:
-            delta = (max_cooking_time - min_cooking_time) // 3
-            self.quickly_time = min_cooking_time + delta
-            self.long_time = max_cooking_time - delta
-            quickly_count = model_admin.model.objects.filter(
-                cooking_time__lt=self.quickly_time).count()
-            medium_count = model_admin.model.objects.filter(
-                cooking_time__gt=self.quickly_time,
-                cooking_time__lt=self.long_time).count()
-            long_count = model_admin.model.objects.filter(
-                cooking_time__gt=self.long_time).count()
+        if min_cooking_time == max_cooking_time:
+            return []
+        delta = (max_cooking_time - min_cooking_time) // 3
+        quickly_time = min_cooking_time + delta
+        long_time = max_cooking_time - delta
+        self.period = {
+            'quickly': (0, quickly_time),
+            'medium': (quickly_time, long_time),
+            'long': (long_time, 10**10),
+        }
+        count_quickly_recipes = self.get_filter(
+            model_admin.model.objects,
+            self.period["quickly"],
+            True
+        )
+        count_medium_recipes = self.get_filter(
+            model_admin.model.objects,
+            self.period["medium"],
+            True
+        )
+        count_long_recipes = self.get_filter(
+            model_admin.model.objects,
+            self.period["long"],
+            True
+        )
         return [
-            ('quickly', f'Быстрее {self.quickly_time} мин ({quickly_count})'),
-            ('medium', f'Быстрее {self.long_time} мин ({medium_count})'),
-            ('long', f'Долго ({long_count})'),
+            ('quickly',
+             f'Быстрее {quickly_time} мин ({count_quickly_recipes})'),
+            ('medium', f'Быстрее {long_time} мин ({count_medium_recipes})'),
+            ('long', f'Долго ({count_long_recipes})'),
         ]
 
     def queryset(self, request, queryset):
         """Проверка наличия подписчиков."""
-        if self.value() == 'quickly':
-            return queryset.filter(cooking_time__lt=self.quickly_time)
-        elif self.value() == 'medium':
-            return queryset.filter(
-                cooking_time__gt=self.quickly_time,
-                cooking_time__lt=self.long_time
-            )
-        elif self.value() == 'long':
-            return queryset.filter(cooking_time__gt=self.long_time)
+        filter_params = self.period.get(self.value())
+        if filter_params:
+            return self.get_filter(queryset, filter_params, False)
         return queryset
 
 
@@ -103,28 +115,39 @@ class RecipeAdmin(admin.ModelAdmin):
     filter_horizontal = ('tags',)
 
     @admin.display(description='Тег(и)')
+    @mark_safe
     def get_tag(self, recipe):
         """Отображение тегов рецепта."""
-        return '\n '.join(tag.name for tag in recipe.tags.all())
+        return '<br>'.join(tag.name for tag in recipe.tags.all())
 
     @admin.display(description='В избранном')
     def get_favorited_count(self, recipe):
-        """Общее кол-во пользователей, у кого рецепт в избранном."""
+        """Количество добавления рецепта в избранне."""
         return recipe.is_favorited.count()
 
     @admin.display(description='Продукт(ы)')
-    def get_ingredients(self, recipe):
+    @mark_safe
+    def get_ingredients(self, recipes):
         """Продукты в рецепте."""
-        return '\n'.join(
-            ingredients.name for ingredients in recipe.ingredients.all()
+        ingredients_info = RecipeIngredient.objects.filter(
+            recipe=recipes).select_related('ingredient').values(
+                'amount',
+                'ingredient__name',
+                'ingredient__measurement_unit'
+        )
+        return '<br>'.join(
+            str(ingredient['ingredient__name'] + ': '
+                + str(ingredient['amount']) + '('
+                + ingredient['ingredient__measurement_unit'] + ')'
+                ) for ingredient in ingredients_info
         )
 
     @admin.display(description='Изображение')
     @mark_safe
-    def get_image(self, user):
+    def get_image(self, recipe):
         """Изображение рецепта."""
-        if user.image and user.image.url:
-            return f'<img src="{user.image.url}" style="max-height: 20px;">'
+        if recipe.image and recipe.image.url:
+            return f'<img src="{recipe.image.url}" style="max-height: 20px;">'
         return None
 
 
@@ -141,8 +164,8 @@ class BaseFilter(admin.SimpleListFilter):
     title = 'Базовый фильтр'
     parameter_name = ''
     filter_fields = [
-        ('True', 'Есть рецепты'),
-        ('False', 'Нет рецептов'),
+        ('True', 'Есть данные'),
+        ('False', 'Нет данных'),
     ]
     queryset_params = {
         'True': {'recipes__isnull': False},
@@ -155,7 +178,7 @@ class BaseFilter(admin.SimpleListFilter):
 
     def queryset(self, request, queryset):
         """Запросы фильтра."""
-        filter_params = self.queryset_params.get(self.value(), {})
+        filter_params = self.queryset_params.get(self.value())
         if filter_params:
             return queryset.filter(**filter_params).distinct()
         return queryset
@@ -166,6 +189,14 @@ class RecipesFilter(BaseFilter):
 
     title = 'Рецепты'
     parameter_name = 'get_recipes_count'
+    filter_fields = [
+        ('True', 'Есть рецепты'),
+        ('False', 'Нет рецептов'),
+    ]
+    queryset_params = {
+        'True': {'recipes__isnull': False},
+        'False': {'recipes__isnull': True},
+    }
 
 
 class SubscribersFilter(BaseFilter):
@@ -199,12 +230,12 @@ class SubscriptionsFilter(BaseFilter):
 
 
 @admin.register(DBUser)
-class UserAdmin(BaseUserAdmin):
+class UserAdmin(CountRecipesMixin, BaseUserAdmin):
     """Пользователи."""
 
     list_display = (
         'id', 'username', 'get_fio', 'email', 'get_avatar',
-        'get_recipes_count', 'get_subscriptions_count',
+        'get_count_in_recipes', 'get_subscriptions_count',
         'get_subscribers_count'
     )
     list_display_links = ('email', 'username')
@@ -222,14 +253,9 @@ class UserAdmin(BaseUserAdmin):
         """Аватар пользователя."""
         if user.avatar and user.avatar.url:
             return f'<img src="{user.avatar.url}" style="max-height: 20px;">'
-        return ''
+        return None
 
-    @admin.display(description='Рецепты')
-    def get_recipes_count(self, user):
-        """Количество рецептов пользователя."""
-        return user.recipes.count()
-
-    @admin.display(description='Количество подписок')
+    @admin.display(description='Подписки')
     def get_subscriptions_count(self, user):
         """Количество подписок."""
         return user.subscribers.count()

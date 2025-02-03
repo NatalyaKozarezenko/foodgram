@@ -1,9 +1,10 @@
 """Представления приложения api."""
 
-import io
+from datetime import date
 
 import django_filters
-from django.http import FileResponse
+from django.db.models import Sum
+from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from djoser.views import UserViewSet as DjoserUserViewSet
@@ -112,16 +113,23 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def generete_txt_file(self, request, *args, **kwargs):
         """Формирование файла txt из списка покупок."""
         user = DBUser.objects.get(username=request.user)
-        recipes = Recipe.objects.filter(is_in_shopping_cart__user=user)
-        ingredients_info = RecipeIngredient.objects.filter(
-            recipe__in=recipes).select_related('ingredient').values(
-                'amount',
-                'ingredient__name',
-                'ingredient__measurement_unit'
+        recipes = Recipe.objects.filter(
+            is_in_shopping_cart__user=user).select_related('author').values(
+                'id',
+                'name',
+                'author__username'
         )
+        ingredients_info = RecipeIngredient.objects.filter(
+            recipe__in=[recipe['id'] for recipe in recipes]).select_related(
+                'ingredient').values(
+                    'ingredient__name',
+                    'ingredient__measurement_unit'
+        ).annotate(total_amount=Sum('amount'))
+        current_date = date.today()
         return FileResponse(
-            io.BytesIO(get_output(recipes, ingredients_info).encode('utf-8')),
-            filename='output.txt',
+            get_output(recipes, ingredients_info, current_date),
+            filename=f'ListShopWithProducts_{current_date.strftime("%Y%m%d")}'
+            '.txt',
             as_attachment=True,
             content_type='text/plain'
         )
@@ -130,7 +138,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
             permission_classes=(permissions.AllowAny,))
     def get_link(self, request, pk):
         """Короткая ссылка на рецепт."""
-        _ = get_object_or_404(Recipe, id=pk)
+        if not Recipe.objects.filter(id=pk).exists():
+            raise Http404
         return Response(
             {'short-link': request.build_absolute_uri(
                 reverse('short_url_view', args=[pk])
@@ -159,11 +168,11 @@ class UsersViewSet(DjoserUserViewSet):
             serializer = AvatarSerializer(
                 request.user, data=request.data, context={'request': request}
             )
-            if serializer.is_valid(raise_exception=True):
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_200_OK)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
         user = request.user
-        if user.avatar != '':
+        if user.avatar:
             user.avatar.delete()
             user.save()
         return Response(status=status.HTTP_204_NO_CONTENT)

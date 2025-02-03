@@ -32,9 +32,7 @@ class UsersSerializer(DjoserUserSerializer):
 
     class Meta(DjoserUserSerializer.Meta):
         model = DBUser
-        fields = DjoserUserSerializer.Meta.fields + (
-            'is_subscribed', 'avatar'
-        )
+        fields = (*DjoserUserSerializer.Meta.fields, 'is_subscribed', 'avatar')
 
     def validate_username(self, username):
         """Проверка имени пользователя."""
@@ -43,12 +41,13 @@ class UsersSerializer(DjoserUserSerializer):
     def get_is_subscribed(self, user):
         """Получение подписок пользователя."""
         request = self.context.get('request', None)
-        return (request.user.subscribers.filter(author=user).exists()
-                if request is not None and request.user.is_authenticated
-                else False)
+        return (
+            request is not None and request.user.is_authenticated
+            and request.user.subscribers.filter(author=user).exists()
+        )
 
 
-class RecipeIngredientSerializer(serializers.ModelSerializer):
+class RecipeIngredientReadSerializer(serializers.ModelSerializer):
     """Промежуточная таблица рецептов и ингредиентов."""
 
     id = serializers.ReadOnlyField(source='ingredient.id')
@@ -56,26 +55,19 @@ class RecipeIngredientSerializer(serializers.ModelSerializer):
     measurement_unit = serializers.CharField(
         source='ingredient.measurement_unit'
     )
-    amount = serializers.IntegerField(min_value=MIN_AMOUNT)
+    amount = serializers.IntegerField()
 
     class Meta:
         fields = ('id', 'name', 'measurement_unit', 'amount')
         model = RecipeIngredient
-
-    def validate_id(self, value):
-        """Валидация id-ключ таблицы."""
-        if not Ingredient.objects.filter(id=value).exists():
-            raise serializers.ValidationError(
-                f'Ингредиента с ID {value} нет.'
-            )
-        return value
+        read_only_fields = fields
 
 
 class RecipeReadSerializer(serializers.ModelSerializer):
     """Отображение рецептов."""
 
     tags = TagSerializer(many=True)
-    ingredients = RecipeIngredientSerializer(
+    ingredients = RecipeIngredientReadSerializer(
         source='RecipeIngredient',
         many=True, read_only=True
     )
@@ -95,9 +87,8 @@ class RecipeReadSerializer(serializers.ModelSerializer):
         """Поиск наличия записи."""
         request = self.context.get('request', None)
         return (
-            obj.filter(user=request.user).exists()
-            if request is not None and request.user.is_authenticated
-            else False
+            request is not None and request.user.is_authenticated
+            and obj.filter(user=request.user).exists()
         )
 
     def get_is_favorited(self, obj):
@@ -137,18 +128,18 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
 
     def validate_image(self, image):
         """Проверка что поле не пустое."""
-        if image is None:
+        if not image:
             raise serializers.ValidationError('Добавьте фотографию рецепта.')
         return image
 
     def find_double(self, data):
         """Проверка на дубли."""
         double = set(
-            [element.id for element in data if data.count(element) >= 2]
+            element.id for element in data if data.count(element) >= 2
         )
-        if len(double) > 0:
+        if double:
             raise serializers.ValidationError(
-                f'Есть дублирующие элементы {double}.'
+                f'Есть дубли: {double}.'
             )
         return data
 
@@ -199,14 +190,12 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         instance.tags.set(validated_data.pop('tags'))
         instance.ingredients.clear()
         self.save_recipes(instance, validated_data.pop('ingredients'))
-        super().update(instance, validated_data).save()
-        return instance
+        return super().update(instance, validated_data)
 
     def to_representation(self, instance):
         """Отображение рецепта с полными данными."""
         return RecipeReadSerializer(
-            instance, context=self.context
-        ).to_representation(instance)
+            context=self.context).to_representation(instance)
 
 
 class MinRecipeSerializer(serializers.ModelSerializer):
@@ -225,9 +214,7 @@ class UsersSubscriptionsSerializer(UsersSerializer):
     recipes_count = serializers.IntegerField(source='recipes.count')
 
     class Meta(UsersSerializer.Meta):
-        fields = UsersSerializer.Meta.fields + (
-            'recipes', 'recipes_count'
-        )
+        fields = (*UsersSerializer.Meta.fields, 'recipes', 'recipes_count')
 
     def get_recipes(self, obj):
         """Выводим репецпы на кого подписались."""
