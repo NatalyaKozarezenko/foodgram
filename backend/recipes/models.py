@@ -108,7 +108,7 @@ class Recipe(models.Model):
     name = models.CharField('Название', max_length=MAX_LEN_TEXT)
     text = models.TextField('Описание')
     cooking_time = models.IntegerField(
-        'Время приготовления (в минутах)',
+        'Время (мин)',
         validators=[MinValueValidator(MIN_COOKING_TIME)]
     )
     image = models.ImageField('Изображение', upload_to='recipes/images/')
@@ -149,6 +149,7 @@ class RecipeIngredient(models.Model):
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
+        verbose_name='Продукты'
     )
     amount = models.PositiveSmallIntegerField(
         'Количество',

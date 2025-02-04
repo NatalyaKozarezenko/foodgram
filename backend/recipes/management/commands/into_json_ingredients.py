@@ -1,6 +1,6 @@
 """Загрузка json-данных в модель Ингрединеты."""
 
-from recipes.management.commands._private import Import
+from backend.recipes.management.commands.base_import_command import Import
 from recipes.models import Ingredient
 
 

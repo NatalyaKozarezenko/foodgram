@@ -21,12 +21,13 @@ class Import(BaseCommand):
         try:
             with open(filename, 'r', encoding='utf-8') as f:
                 data_import = self.model.objects.bulk_create(
-                    [self.model(**data) for data in json.load(f)],
+                    (self.model(**data) for data in json.load(f)),
+                    # Лишнее создание списка. Удалите квадратные скобки.
                     ignore_conflicts=True
                 )
             self.stdout.write(
-                f'Загрузка {self.filename} завершена.'
-                f'Загружено {len(data_import)} новых записей.'
+                f'Из файла {self.filename} загружено '
+                f'{len(data_import)} записей.'
             )
         except Exception as error:
             self.stdout.write(f'Ошибка: {error} при импорте {self.filename}.')

@@ -10,4 +10,4 @@ def redirect_view(request, id):
     """переадресация с короткой ссылки."""
     if not Recipe.objects.filter(pk=id).exists():
         raise Http404
-    return redirect(f'/recipes/{id}/')
+    return redirect(f'/recipes/{id}')

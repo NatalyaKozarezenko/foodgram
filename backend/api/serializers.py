@@ -55,7 +55,6 @@ class RecipeIngredientReadSerializer(serializers.ModelSerializer):
     measurement_unit = serializers.CharField(
         source='ingredient.measurement_unit'
     )
-    amount = serializers.IntegerField()
 
     class Meta:
         fields = ('id', 'name', 'measurement_unit', 'amount')
@@ -121,6 +120,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
     )
     ingredients = RecipeIngredientCreateSerializer(many=True, required=True)
     image = Base64ImageField(use_url=True, required=True)
+    cooking_time = serializers.IntegerField(min_value=MIN_AMOUNT)
 
     class Meta:
         fields = '__all__'
@@ -132,16 +132,16 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Добавьте фотографию рецепта.')
         return image
 
-    def find_double(self, data):
+    def find_double(self, ids):
         """Проверка на дубли."""
         double = set(
-            element.id for element in data if data.count(element) >= 2
+            element.id for element in id if ids.count(element) >= 2
         )
         if double:
             raise serializers.ValidationError(
                 f'Есть дубли: {double}.'
             )
-        return data
+        return ids
 
     def validate_tags(self, tags):
         """Проверка на дубли тегов."""

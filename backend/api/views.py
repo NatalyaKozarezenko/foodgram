@@ -1,5 +1,6 @@
 """Представления приложения api."""
 
+import locale
 from datetime import date
 
 import django_filters
@@ -117,20 +118,19 @@ class RecipeViewSet(viewsets.ModelViewSet):
             is_in_shopping_cart__user=user).select_related('author').values(
                 'id',
                 'name',
-                'author__first_name',
-                'author__last_name',
+                'author__username'
         )
         ingredients_info = RecipeIngredient.objects.filter(
             recipe__in=[recipe['id'] for recipe in recipes]).select_related(
                 'ingredient').values(
                     'ingredient__name',
                     'ingredient__measurement_unit'
-        ).annotate(total_amount=Sum('amount'))
-        current_date = date.today()
+        ).annotate(total_amount=Sum('amount')).order_by('ingredient__name')
+        locale.setlocale(locale.LC_TIME, 'Russian_Russia.1251')
+        current_date = date.today().strftime("%d %b %Y")
         return FileResponse(
             get_output(recipes, ingredients_info, current_date),
-            filename=f'ListShopWithProducts_{current_date.strftime("%Y%m%d")}'
-            '.txt',
+            filename='ListShopWithProducts_{}.txt'.format(current_date),
             as_attachment=True,
             content_type='text/plain'
         )
@@ -140,11 +140,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def get_link(self, request, pk):
         """Короткая ссылка на рецепт."""
         if not Recipe.objects.filter(id=pk).exists():
-            raise Http404
+            raise Http404('Рецепта с {pk} таким не существует.')
         return Response(
             {'short-link': request.build_absolute_uri(
                 reverse('short_url_view', args=[pk])
             ).replace('http:', 'https:')},
+# Лишняя строка.
             status=status.HTTP_200_OK
         )
 
