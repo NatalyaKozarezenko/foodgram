@@ -125,6 +125,7 @@ class CookingTimeFilter(admin.SimpleListFilter):
 
 
 class RecipeIngredientInline(admin.TabularInline):
+    """Продукты при редактировании рецепта."""
     model = RecipeIngredient
     extra = 1
     min_num = 1
