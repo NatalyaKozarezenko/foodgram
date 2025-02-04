@@ -145,7 +145,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             {'short-link': request.build_absolute_uri(
                 reverse('short_url_view', args=[pk])
             ).replace('http:', 'https:')},
-# Лишняя строка.
+            # Лишняя строка.
             status=status.HTTP_200_OK
         )
 

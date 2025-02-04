@@ -1,8 +1,8 @@
 """Настройка админки."""
 
-from django.contrib.auth.models import Group
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.contrib.auth.models import Group
 from django.db.models import Max, Min
 from django.utils.safestring import mark_safe
 
@@ -53,20 +53,21 @@ class CookingTimeFilter(admin.SimpleListFilter):
 
     def get_filter(self, obj, period, count):
         """Объекты за период."""
-#         Неудачное имя метода.
-# Запомните:
-#     У функции имя должно описывать возвращаемое значение.
-# Этот метод возвращает не фильтр, а кверисет.
-# Задайте параметру obj умолчание None и берите кверисет из поля.
-# Замените (всегда заменяйте!) невнятное имя obj на содержательное. Это рецепты!
-# Неудачный параметр period.
-# Замените на получение ключа к словарю self.period.
-# Лишний код count.
+        #         Неудачное имя метода.
+        # Запомните:
+        #     У функции имя должно описывать возвращаемое значение.
+        # Этот метод возвращает не фильтр, а кверисет.
+        # Задайте параметру obj умолчание None и берите кверисет из поля.
+        # Замените (всегда заменяйте!) невнятное имя obj на содержательное.
+        # Это рецепты!
+        # Неудачный параметр period.
+        # Замените на получение ключа к словарю self.period.
+        # Лишний код count.
         if count:
-# Две лишних строки.
-# Выполняйте подсчет размера снаружи.
-# ===
-# Запомните, что функции должны возвращать ответы одного типа.
+            # Две лишних строки.
+            # Выполняйте подсчет размера снаружи.
+            # ===
+            # Запомните, что функции должны возвращать ответы одного типа.
             return obj.filter(cooking_time__range=period).count()
         return obj.filter(cooking_time__range=period).distinct()
 
@@ -82,29 +83,30 @@ class CookingTimeFilter(admin.SimpleListFilter):
         delta = (max_cooking_time - min_cooking_time) // 3
         quickly_time = min_cooking_time + delta
         long_time = max_cooking_time - delta
-        self.period = {
-            # Неудачное имя. Это не один объект, а набор. Нужно множественное число.
+        self.periods = {
             'quickly': (0, quickly_time),
             'medium': (quickly_time, long_time),
             'long': (long_time, 10**10),
         }
         # Логическая ошибка.
-# Рецепты с временами quickly_time или long_time будут относится в двум пунктам меню.Неудачное имя. Это не один объект, а набор. Нужно множественное число.
+        # Рецепты с временами quickly_time или long_time будут относится
+        # в двум пунктам меню.Неудачное имя. Это не один объект, а набор.
+        # Нужно множественное число.
         count_quickly_recipes = self.get_filter(
             model_admin.model.objects,
-            self.period["quickly"],
+            self.periods["quickly"],
             True
         )
         count_medium_recipes = self.get_filter(
-#             Избатесь от передачи этого значения. 
-# Запомните его в поле и метод будет его применять.
+            # Избатесь от передачи этого значения.
+            # Запомните его в поле и метод будет его применять.
             model_admin.model.objects,
-            self.period["medium"],
+            self.periods["medium"],
             True
         )
         count_long_recipes = self.get_filter(
             model_admin.model.objects,
-            self.period["long"],
+            self.periods["long"],
             True
         )
         return [
@@ -116,10 +118,11 @@ class CookingTimeFilter(admin.SimpleListFilter):
 
     def queryset(self, request, queryset):
         """Проверка наличия подписчиков."""
-        filter_params = self.period.get(self.value())
+        filter_params = self.periods.get(self.value())
         if filter_params:
             return self.get_filter(queryset, filter_params, False)
         return queryset
+
 
 class RecipeIngredientInline(admin.TabularInline):
     model = RecipeIngredient
@@ -260,15 +263,15 @@ class SubscriptionsFilter(BaseFilter):
 class UserAdmin(CountRecipesMixin, BaseUserAdmin):
     """Пользователи."""
 
-# просмотр пользователя
     fieldsets = (
         (None, {'fields': ('email', 'password', 'avatar')}),
         ('Personal info', {'fields': ('first_name', 'last_name')}),
-        ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
+        ('Permissions', {'fields': (
+            'is_active', 'is_staff', 'is_superuser',
+            'groups', 'user_permissions'
+        )}),
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
-        )
-
-
+    )
     list_display = (
         'id', 'username', 'get_fio', 'email', 'get_avatar',
         'get_count_in_recipes', 'get_subscriptions_count',
