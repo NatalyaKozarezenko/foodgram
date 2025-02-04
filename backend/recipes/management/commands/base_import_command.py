@@ -22,7 +22,6 @@ class Import(BaseCommand):
             with open(filename, 'r', encoding='utf-8') as f:
                 data_import = self.model.objects.bulk_create(
                     (self.model(**data) for data in json.load(f)),
-                    # Лишнее создание списка. Удалите квадратные скобки.
                     ignore_conflicts=True
                 )
             self.stdout.write(

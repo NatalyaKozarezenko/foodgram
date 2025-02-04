@@ -20,9 +20,6 @@ class CountRecipesMixin:
     @admin.display(description='Рецепты')
     def get_count_in_recipes(self, obj):
         """Количество рецептов."""
-        # Добейтесь, чтобы строка 22 всегда работала.
-        if obj == Ingredient:
-            return Ingredient.RecipeIngredient.count()
         return obj.recipes.count()
 
 
@@ -51,25 +48,11 @@ class CookingTimeFilter(admin.SimpleListFilter):
     title = 'Время готовки'
     parameter_name = 'cooking_time'
 
-    def get_filter(self, obj, period, count):
+    def get_recipes_period(self, period_key):
         """Объекты за период."""
-        #         Неудачное имя метода.
-        # Запомните:
-        #     У функции имя должно описывать возвращаемое значение.
-        # Этот метод возвращает не фильтр, а кверисет.
-        # Задайте параметру obj умолчание None и берите кверисет из поля.
-        # Замените (всегда заменяйте!) невнятное имя obj на содержательное.
-        # Это рецепты!
-        # Неудачный параметр period.
-        # Замените на получение ключа к словарю self.period.
-        # Лишний код count.
-        if count:
-            # Две лишних строки.
-            # Выполняйте подсчет размера снаружи.
-            # ===
-            # Запомните, что функции должны возвращать ответы одного типа.
-            return obj.filter(cooking_time__range=period).count()
-        return obj.filter(cooking_time__range=period).distinct()
+        return self.recipes.filter(
+            cooking_time__range=self.periods.get(period_key)
+        )
 
     def lookups(self, request, model_admin):
         """Параметры фильтра."""
@@ -85,30 +68,13 @@ class CookingTimeFilter(admin.SimpleListFilter):
         long_time = max_cooking_time - delta
         self.periods = {
             'quickly': (0, quickly_time),
-            'medium': (quickly_time, long_time),
-            'long': (long_time, 10**10),
+            'medium': (quickly_time + 1, long_time),
+            'long': (long_time + 1, 10**10),
         }
-        # Логическая ошибка.
-        # Рецепты с временами quickly_time или long_time будут относится
-        # в двум пунктам меню.Неудачное имя. Это не один объект, а набор.
-        # Нужно множественное число.
-        count_quickly_recipes = self.get_filter(
-            model_admin.model.objects,
-            self.periods["quickly"],
-            True
-        )
-        count_medium_recipes = self.get_filter(
-            # Избатесь от передачи этого значения.
-            # Запомните его в поле и метод будет его применять.
-            model_admin.model.objects,
-            self.periods["medium"],
-            True
-        )
-        count_long_recipes = self.get_filter(
-            model_admin.model.objects,
-            self.periods["long"],
-            True
-        )
+        self.recipes = model_admin.model.objects
+        count_quickly_recipes = self.get_recipes_period('quickly').count()
+        count_medium_recipes = self.get_recipes_period('medium').count()
+        count_long_recipes = self.get_recipes_period('long').count()
         return [
             ('quickly',
              f'Быстрее {quickly_time} мин ({count_quickly_recipes})'),
@@ -118,14 +84,16 @@ class CookingTimeFilter(admin.SimpleListFilter):
 
     def queryset(self, request, queryset):
         """Проверка наличия подписчиков."""
-        filter_params = self.periods.get(self.value())
-        if filter_params:
-            return self.get_filter(queryset, filter_params, False)
+        params = self.value()
+        self.recipes = queryset
+        if params:
+            return self.get_recipes_period(params).distinct()
         return queryset
 
 
 class RecipeIngredientInline(admin.TabularInline):
     """Продукты при редактировании рецепта."""
+
     model = RecipeIngredient
     extra = 1
     min_num = 1
