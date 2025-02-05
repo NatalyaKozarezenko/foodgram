@@ -135,7 +135,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
     def find_double(self, ids):
         """Проверка на дубли."""
         double = set(
-            element.id for element in id if ids.count(element) >= 2
+            element.id for element in ids if ids.count(element) >= 2
         )
         if double:
             raise serializers.ValidationError(
@@ -180,9 +180,11 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         """Сохранение рецепта."""
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
+        print(tags)
         recipe = super().create(validated_data)
         recipe.tags.set(tags)
         self.save_recipes(recipe, ingredients)
+        print(recipe)
         return recipe
 
     def update(self, instance, validated_data):
