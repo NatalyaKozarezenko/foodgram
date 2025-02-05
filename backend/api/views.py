@@ -128,8 +128,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ).annotate(total_amount=Sum('amount')).order_by('ingredient__name')
         locale.setlocale(locale.LC_TIME, 'Russian_Russia.1251')
         current_date = date.today().strftime("%d %b %Y")
+        template = {
+            'ingredients':
+                '{number}) {total_amount} ({measurement_unit}) - {name}',
+            'recipe': '{number}) {name} ({author})'
+        }
         return FileResponse(
-            get_output(recipes, ingredients_info, current_date),
+            get_output(recipes, ingredients_info, current_date, template),
             filename='ListShopWithProducts_{}.txt'.format(current_date),
             as_attachment=True,
             content_type='text/plain'
@@ -140,7 +145,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def get_link(self, request, pk):
         """Короткая ссылка на рецепт."""
         if not Recipe.objects.filter(id=pk).exists():
-            raise Http404('Рецепта с {pk} таким не существует.')
+            raise Http404('Рецепта с id={pk} не существует.')
         return Response(
             {'short-link': request.build_absolute_uri(
                 reverse('short_url_view', args=[pk])

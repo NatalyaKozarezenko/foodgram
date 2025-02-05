@@ -128,17 +128,11 @@ class RecipeAdmin(admin.ModelAdmin):
     @mark_safe
     def get_ingredients(self, recipes):
         """Продукты в рецепте."""
-        ingredients_info = RecipeIngredient.objects.filter(
-            recipe=recipes).select_related('ingredient').values(
-                'amount',
-                'ingredient__name',
-                'ingredient__measurement_unit'
-        )
-        return '<br>'.join(
-            str(ingredient['ingredient__name'] + ': '
-                + str(ingredient['amount']) + '('
-                + ingredient['ingredient__measurement_unit'] + ')'
-                ) for ingredient in ingredients_info
+        return '<br>'.join('{}: {} ({})'.format(
+            recipe.ingredient.name,
+            recipe.amount,
+            recipe.ingredient.measurement_unit
+        ) for recipe in recipes.recipeingredients.all()
         )
 
     @admin.display(description='Изображение')
@@ -167,8 +161,8 @@ class BaseFilter(admin.SimpleListFilter):
         ('False', 'Нет данных'),
     ]
     queryset_params = {
-        'True': {'recipes__isnull': False},
-        'False': {'recipes__isnull': True},
+        'True': {'data__isnull': False},
+        'False': {'data__isnull': True},
     }
 
     def lookups(self, request, model_admin):
