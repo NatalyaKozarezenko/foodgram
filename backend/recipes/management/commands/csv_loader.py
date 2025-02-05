@@ -25,7 +25,7 @@ MODELS_DICT = {
 class Command(BaseCommand):
     """Поиск файлов, моделей и загрузка данных."""
 
-    help = 'Импорт информации из CSV-файла'
+    help = 'Импорт информации из CSV-файла.'
 
     def load_file(self, path):
         """Поиск файлов."""
