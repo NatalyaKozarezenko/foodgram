@@ -154,7 +154,7 @@ class RecipeIngredientAdmin(admin.ModelAdmin):
 class BaseFilter(admin.SimpleListFilter):
     """Базовый фильтр."""
 
-    title = 'Базовый фильтр.'
+    title = 'Базовый фильтр'
     parameter_name = ''
     filter_fields = [
         ('True', 'Есть данные'),
