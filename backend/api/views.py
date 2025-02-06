@@ -128,7 +128,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         ).annotate(total_amount=Sum('amount')).order_by('ingredient__name')
         # locale.setlocale(locale.LC_TIME, 'Russian_Russia.1251')
         # не установлен на сервере ru_RU.UTF-8
-        locale.setlocale(locale.LC_TIME, 'ru_RU.UTF-8')
+        # locale.setlocale(locale.LC_TIME, 'ru_RU.UTF-8')
         current_date = date.today().strftime("%d %b %Y")
         template = {
             'ingredients':
