@@ -1,6 +1,6 @@
 """Представления приложения api."""
 
-import locale
+# import locale
 from datetime import date
 
 import django_filters
