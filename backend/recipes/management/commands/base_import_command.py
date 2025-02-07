@@ -11,7 +11,7 @@ from recipes.models import Ingredient
 class Import(BaseCommand):
     """Загрузка json-данных."""
 
-    help = 'Загрузка json-данных.'
+    help = 'Загрузка json-данных'
     filename = 'filename.json'
     model = Ingredient
 

@@ -1,6 +1,6 @@
 """Представления приложения api."""
 
-import locale
+from babel.dates import format_date
 from datetime import date
 
 import django_filters
@@ -126,10 +126,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
                     'ingredient__name',
                     'ingredient__measurement_unit'
         ).annotate(total_amount=Sum('amount')).order_by('ingredient__name')
-        # locale.setlocale(locale.LC_TIME, 'Russian_Russia.1251')
-        # на сервере установлиа ru_RU.UTF-8
-        locale.setlocale(locale.LC_TIME, 'ru_RU.UTF-8')
-        current_date = date.today().strftime("%d %b %Y")
+        current_date = format_date(
+            date.today(),
+            format='d MMMM yyyy',
+            locale='ru_RU'
+        )
         template = {
             'ingredients':
                 '{number}) {total_amount} ({measurement_unit}) - {name}',
