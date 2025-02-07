@@ -1,4 +1,4 @@
-version: '3.3'
+# version: '3.3'
 
 volumes:
   pg_data:
@@ -35,7 +35,7 @@ services:
       - static:/static
   # МОЁ
   # nginx:
-  #   build: ../infa/
+  #   build: ./infa/
   #   ports:
   #     - 9000:80
   #   volumes:
