@@ -3,7 +3,6 @@
 from datetime import date
 
 import django_filters
-from babel.dates import format_date
 from django.db.models import Sum
 from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404
@@ -126,19 +125,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
                     'ingredient__name',
                     'ingredient__measurement_unit'
         ).annotate(total_amount=Sum('amount')).order_by('ingredient__name')
-        current_date = format_date(
-            date.today(),
-            format='d MMMM yyyy',
-            locale='ru_RU'
-        )
-        template = {
-            'ingredients':
-                '{number}) {total_amount} ({measurement_unit}) - {name}',
-            'recipe': '{number}) {name} ({author})'
-        }
         return FileResponse(
-            get_output(recipes, ingredients_info, current_date, template),
-            filename='ListShopWithProducts_{}.txt'.format(current_date),
+            get_output(recipes, ingredients_info),
+            filename='ListShopWithProducts_{}.txt'.format(
+                date.today().strftime('%Y.%m.%d')
+            ),
             as_attachment=True,
             content_type='text/plain'
         )

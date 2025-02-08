@@ -180,11 +180,9 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         """Сохранение рецепта."""
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
-        print(tags)
         recipe = super().create(validated_data)
         recipe.tags.set(tags)
         self.save_recipes(recipe, ingredients)
-        print(recipe)
         return recipe
 
     def update(self, instance, validated_data):

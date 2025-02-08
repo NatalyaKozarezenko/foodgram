@@ -48,9 +48,11 @@ class CookingTimeFilter(admin.SimpleListFilter):
     title = 'Время готовки'
     parameter_name = 'cooking_time'
 
-    def get_recipes_period(self, period_key):
+    def get_recipes(self, period_key, recipes=None):
         """Объекты за период."""
-        return self.recipes.filter(
+        if recipes is None:
+            recipes = self.recipes
+        return recipes.filter(
             cooking_time__range=self.periods.get(period_key)
         )
 
@@ -72,9 +74,9 @@ class CookingTimeFilter(admin.SimpleListFilter):
             'long': (long_time + 1, 10**10),
         }
         self.recipes = model_admin.model.objects
-        count_quickly_recipes = self.get_recipes_period('quickly').count()
-        count_medium_recipes = self.get_recipes_period('medium').count()
-        count_long_recipes = self.get_recipes_period('long').count()
+        count_quickly_recipes = self.get_recipes('quickly').count()
+        count_medium_recipes = self.get_recipes('medium').count()
+        count_long_recipes = self.get_recipes('long').count()
         return [
             ('quickly',
              f'Быстрее {quickly_time} мин ({count_quickly_recipes})'),
@@ -82,13 +84,12 @@ class CookingTimeFilter(admin.SimpleListFilter):
             ('long', f'Долго ({count_long_recipes})'),
         ]
 
-    def queryset(self, request, queryset):
-        """Проверка наличия подписчиков."""
+    def queryset(self, request, recipes):
+        """Рецепты по времени готовки."""
         params = self.value()
-        self.recipes = queryset
         if params:
-            return self.get_recipes_period(params).distinct()
-        return queryset
+            return self.get_recipes(params, recipes)
+        return recipes
 
 
 class RecipeIngredientInline(admin.TabularInline):

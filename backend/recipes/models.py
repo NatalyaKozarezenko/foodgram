@@ -99,7 +99,7 @@ class Ingredient(models.Model):
 
     def __str__(self):
         """Отображение названия продукта."""
-        return self.name[:LOOK_TEXT]
+        return f'{self.name[:LOOK_TEXT]} ({self.measurement_unit})'
 
 
 class Recipe(models.Model):
@@ -117,7 +117,6 @@ class Recipe(models.Model):
         Ingredient,
         through='RecipeIngredient',
         verbose_name='Продукты',
-        related_name='recipesingredient'
     )
     pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
     author = models.ForeignKey(
@@ -146,13 +145,11 @@ class RecipeIngredient(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='recipeingredients'
     )
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
         verbose_name='Продукты',
-        related_name='recipes'
     )
     amount = models.PositiveSmallIntegerField(
         'Количество',
@@ -162,8 +159,9 @@ class RecipeIngredient(models.Model):
     class Meta:
         """Мета класс связной таблицы."""
 
-        verbose_name = "Продукт в рецепте"
-        verbose_name_plural = "Продукты в рецепте"
+        verbose_name = 'Продукт в рецепте'
+        verbose_name_plural = 'Продукты в рецепте'
+        default_related_name = 'recipeingredients'
 
     def __str__(self):
         """Отображение рецептов и продуктов и их мера."""

@@ -5,7 +5,6 @@ import json
 from django.core.management.base import BaseCommand
 
 from foodgram_backend.settings import PATH_FOR_CSV
-from recipes.models import Ingredient
 
 
 class Import(BaseCommand):
@@ -13,13 +12,14 @@ class Import(BaseCommand):
 
     help = 'Загрузка json-данных'
     filename = 'filename.json'
-    model = Ingredient
+    model = None
 
     def handle(self, *args, **options):
         """Загрузка данных."""
-        filename = PATH_FOR_CSV + self.filename
         try:
-            with open(filename, 'r', encoding='utf-8') as f:
+            with open(
+                PATH_FOR_CSV + self.filename, 'r', encoding='utf-8'
+            ) as f:
                 data_import = self.model.objects.bulk_create(
                     (self.model(**data) for data in json.load(f)),
                     ignore_conflicts=True
