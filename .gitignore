@@ -1,5 +1,7 @@
 frontend/node_modules
 infra/frontend/build
+infra/pgdata
+infra/db_init
 .env
 db.sqlite3.bak
 

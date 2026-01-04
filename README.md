@@ -91,11 +91,12 @@ python3 manage.py migrate
 
 ## 2. Настройка .env файла
 2.1. В корне проекта создайте файл .env и заполните следующими данными:
+(см файл .env.example)
 
 ```
-POSTGRES_DB=foodgram                                 - имя базы данных
-POSTGRES_USER=foodgram_user                          - имя пользователя в БД
-POSTGRES_PASSWORD=foodgram_password                  - пароль для пользователя к БД
+POSTGRES_DB=django                                   - имя базы данных
+POSTGRES_USER=django                                 - имя пользователя в БД
+POSTGRES_PASSWORD=django                             - пароль для пользователя к БД
 DB_HOST=db                                           - имя Хоста
 DB_PORT=5432                                         - порт соединения к БД
 SECRET_KEY=SECRET_KEY                                - SECRET_KEY
@@ -104,37 +105,53 @@ SQLITE = False                                       - False для работы
 DEBUG = False                                        - статус режима отладки
 ```
 
+### 3. Запуск локально:
+3.1 Перейти в папку infa командой:
 
-### 3. Деплой проекта на сервер
+```
+cd .\infra\
+```
 
-3.1. Создайте на сервере директорию foodgram и скопируйте в неё файлы docker-compose.production.yml и .env и nginx.conf
+3.2 Запустить проект командой
+
+```
+make local_up
+```
+
+3.3 Открыть:
+http://localhost:8888/
+http://localhost:8888/admin/ под admin@example.com, пароль password123
+
+### 4. Деплой проекта на сервер
+
+4.1. Создайте на сервере директорию foodgram и скопируйте в неё файлы docker-compose.production.yml и .env и nginx.conf
 
 ```
 scp -i path_to_SSH/SSH_name docker-compose.production.yml \
     username@server_ip:/home/username/taski/docker-compose.production.yml
 ```
 
-3.2. В файле .env и дозаполните следующими данными:
+4.2. В файле .env и дозаполните следующими данными:
 
 ```
 ALLOWED_HOSTS=allfood.zapto.org 127.0.0.1 localhost    - перечень разрешённых хостов (пример)
 CSRF_TRUSTED_ORIGINS=https://allfood.zapto.org         - список доверенных доменов
 ```
 
-3.3. Запустите Docker Compose
+4.3. Запустите Docker Compose
 
 ```
 sudo docker compose -f docker-compose.production.yml up -d
 ```
 
-3.4. Выполните миграции, соберите статические файлы бэкенда и скопируйте их в /backend_static/static/
+4.4. Выполните миграции, соберите статические файлы бэкенда и скопируйте их в /backend_static/static/
 
 ```
 sudo docker compose -f docker-compose.production.yml exec backend python manage.py migrate
 sudo docker compose -f docker-compose.production.yml exec backend python manage.py collectstatic
 sudo docker compose -f docker-compose.production.yml exec backend cp -r /app/collected_static/. /backend_static/static/
 ```
-3.5. Загрузите данные из json-файлов:
+4.5. Загрузите данные из json-файлов:
 Разместите json-файлы в дирректории директории foodgram/data/ и запустите скрипт командой:
 
 ```
@@ -142,7 +159,7 @@ sudo docker compose -f docker-compose.production.yml exec backend python manage.
 sudo docker compose -f docker-compose.production.yml exec backend python manage.py into_json_tags
 ```
 
-3.6. Добавьте суперпользователя:
+4.6. Добавьте суперпользователя:
 
 ```
 sudo docker compose -f docker-compose.production.yml exec backend python manage.py createsuperuser

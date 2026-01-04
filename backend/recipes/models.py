@@ -145,6 +145,7 @@ class RecipeIngredient(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
+        verbose_name='Рецепты',
     )
     ingredient = models.ForeignKey(
         Ingredient,
@@ -264,6 +265,10 @@ class Subscriptions(models.Model):
                 fields=['subscriber', 'author'],
                 name='unique_subscriber_author',
             ),
+            models.CheckConstraint(
+                check=~models.Q(subscriber=models.F('author')),
+                name = 'not_self_subscribers'
+            )
         )
 
     def __str__(self):

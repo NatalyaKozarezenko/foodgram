@@ -68,7 +68,8 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True)
     ingredients = RecipeIngredientReadSerializer(
         source='recipeingredients',
-        many=True, read_only=True
+        many=True
+        # , read_only=True есть же read_only_fields = fields
     )
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField(read_only=True)
@@ -115,9 +116,9 @@ class RecipeIngredientCreateSerializer(serializers.ModelSerializer):
 class RecipeWriteSerializer(serializers.ModelSerializer):
     """Сохранение рецепта."""
 
-    tags = serializers.PrimaryKeyRelatedField(
-        queryset=Tag.objects.all(), many=True, required=True
-    )
+    # tags = serializers.PrimaryKeyRelatedField(        # лишний и без него всё сохраняет
+    #     queryset=Tag.objects.all(), many=True, required=True
+    # ) 
     ingredients = RecipeIngredientCreateSerializer(many=True, required=True)
     image = Base64ImageField(use_url=True, required=True)
     cooking_time = serializers.IntegerField(min_value=MIN_AMOUNT)
@@ -179,15 +180,15 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         """Сохранение рецепта."""
         ingredients = validated_data.pop('ingredients')
-        tags = validated_data.pop('tags')
+        # tags = validated_data.pop('tags')  # лишний и без него всё сохраняет
         recipe = super().create(validated_data)
-        recipe.tags.set(tags)
+        # recipe.tags.set(tags)  # лишний и без него всё сохраняет
         self.save_recipes(recipe, ingredients)
         return recipe
-
+    
     def update(self, instance, validated_data):
         """Изменение рецепта."""
-        instance.tags.set(validated_data.pop('tags'))
+        # instance.tags.set(validated_data.pop('tags'))  # лишний и без него всё сохраняет
         instance.ingredients.clear()
         self.save_recipes(instance, validated_data.pop('ingredients'))
         return super().update(instance, validated_data)
