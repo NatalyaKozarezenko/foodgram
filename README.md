@@ -65,6 +65,7 @@ cd foodgram
 ```
 
 1.2. Cоздайте и активируйте виртуальное окружение:
+(python не старше 3.10)
 
 ```
 python3 -m venv env
@@ -86,6 +87,7 @@ pip install -r requirements.txt
 1.5. Выполните миграции:
 
 ```
+cd .\backend\
 python3 manage.py migrate
 ```
 
@@ -105,20 +107,42 @@ SQLITE = False                                       - False для работы
 DEBUG = False                                        - статус режима отладки
 ```
 
-### 3. Запуск локально:
-3.1 Перейти в папку infa командой:
+### 3. Запуск
+
+#### 3.1 Запуск на локальной машине
+3.1.1 В файле package.json измените значение "proxy" на "http://127.0.0.1:8000" и в папке frontend выполните:
+
+```
+npm install
+npm start
+```
+
+3.1.2 В папке backend создайте суперпользователя и запустите:
+
+```
+python manage.py createsuperuser
+python manage.py csv_loader
+python manage.py runserver
+```
+3.1.3 Откройте:
+http://localhost:3000/recipes
+http://127.0.0.1:8000/admin/
+
+#### 3.2 Запуск локально через докер
+3.2 Перейти в папку infa командой:
 
 ```
 cd .\infra\
 ```
 
-3.2 Запустить проект командой
+3.3 Запустить проект и загрузить первоначальные данные:
 
 ```
 make local_up
+make load_csv
 ```
 
-3.3 Открыть:
+3.4 Открыть:
 http://localhost:8888/
 http://localhost:8888/admin/ под admin@example.com, пароль password123
 
